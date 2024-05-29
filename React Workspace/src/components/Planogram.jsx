@@ -5,8 +5,8 @@ function Planogram({ products }) {
   const gridTemplate = Array(9).fill(null);
 
   return (
-    <div className="shelf">
-      <h2>Planogram Shelf</h2>
+    <div className=" shelf">
+      <h2 className="text-center">Planogram Display</h2>
       <div className="shelf-grid">
         {gridTemplate.map((_, index) => {
           const product = products[index];
