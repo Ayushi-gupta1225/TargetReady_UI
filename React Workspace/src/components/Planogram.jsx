@@ -38,7 +38,7 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
               return {
                 ...product,
                 heightPx: product.height * scalingFactorHeight,
-                widthPx: product.breadth * scalingFactorWidth
+                widthPx: product.breadth * scalingFactorWidth * (location.quantity || 1),
               };
             });
 
@@ -46,7 +46,6 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
             <div key={index} className="shelf-item">
               {locationProducts.length > 0 ? (
                 locationProducts.map((product, i) => {
-
 
                   return (
                     <div

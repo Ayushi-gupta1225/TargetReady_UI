@@ -114,11 +114,12 @@ const Home = () => {
             productImage: formData.productImage,
           },
         ]);
-        console.log("products:", products);
         alert('Product placed successfully');
       }
     } catch (error) {
       alert(`Error: ${error.message}`);
+    } finally {
+      window.location.reload(); // Refresh the page after successful submission or error
     }
   };
 
@@ -256,6 +257,3 @@ const Home = () => {
 };
 
 export default Home;
-
-// Planogram.js
-// ... (no changes needed)
