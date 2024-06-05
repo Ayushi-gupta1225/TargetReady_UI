@@ -1,8 +1,7 @@
+import React, { useState } from 'react';
 import './Planogram.css';
-import { useState } from 'react';
-import PropTypes from 'prop-types';
 
-function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidth }) {
+function Planogram({ products, scalingFactorHeight, scalingFactorWidth }) {
   const gridTemplate = Array(9).fill(null);
   const realLifeHeightCm = 44;
   const realLifeWidthCm = 90;
@@ -31,41 +30,36 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
         {gridTemplate.map((_, index) => {
           const rowIndex = Math.floor(index / 3) + 1;
           const colIndex = (index % 3) + 1;
-          const locationProducts = locations
-            .filter(l => l.productRow === rowIndex && l.productSection === colIndex)
-            .map(location => {
-              const product = products.find(p => p.productId === location.product.productId);
-              return {
-                ...product,
-                heightPx: product.height * scalingFactorHeight,
-                widthPx: product.breadth * scalingFactorWidth
-              };
-            });
-
+          const product = products.find(p => p.shelf === `shelf${rowIndex}` && p.section === `section${colIndex}`);
           return (
             <div key={index} className="shelf-item">
-              {locationProducts.length > 0 ? (
-                locationProducts.map((product, i) => {
-
-
-                  return (
-                    <div
-                      key={i}
-                      className="product-rectangle"
+              {product ? (
+                <div
+                  className="product-rectangle"
+                  style={{
+                    width: `${product.widthPx}px`,
+                    height: `${product.heightPx}px`,
+                    borderColor: (product.widthPx <= realLifeWidthCm * scalingFactorWidth && product.heightPx <= realLifeHeightCm * scalingFactorHeight) ? 'green' : 'red',
+                    backgroundColor: 'grey',
+                    borderWidth: '4px', // Thicker border for better visibility
+                  }}
+                  onClick={() => handleProductClick(product)}
+                >
+                  {product.productImage && (
+                    <img
+                      src={product.productImage}
+                      alt="Product"
+                      className="product-image"
                       style={{
-                        width: `${product.widthPx}px`,
-                        height: `${product.heightPx}px`,
-                        borderColor: (product.widthPx <= realLifeWidthCm * scalingFactorWidth && product.heightPx <= realLifeHeightCm * scalingFactorHeight) ? 'green' : 'red',
-                        backgroundColor: 'grey',
-                        borderWidth: '4px',
-                        alignSelf: 'flex-end' // Align to the bottom of the slot
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
                       }}
-                      onClick={() => handleProductClick(product)}
                     />
-                  );
-                })
+                  )}
+                </div>
               ) : (
-                <p className="empty-slot">Empty Slot</p>
+                <p>Empty Slot</p>
               )}
             </div>
           );
@@ -157,32 +151,5 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
     </div>
   );
 }
-
-Planogram.propTypes = {
-  products: PropTypes.arrayOf(
-    PropTypes.shape({
-      productId: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      height: PropTypes.number.isRequired,
-      breadth: PropTypes.number.isRequired,
-      heightPx: PropTypes.number,
-      widthPx: PropTypes.number,
-      quantity: PropTypes.number.isRequired
-    })
-  ).isRequired,
-  locations: PropTypes.arrayOf(
-    PropTypes.shape({
-      locationId: PropTypes.number.isRequired,
-      product: PropTypes.shape({
-        productId: PropTypes.number.isRequired
-      }).isRequired,
-      productRow: PropTypes.number.isRequired,
-      productSection: PropTypes.number.isRequired,
-      quantity: PropTypes.number.isRequired
-    })
-  ).isRequired,
-  scalingFactorHeight: PropTypes.number.isRequired,
-  scalingFactorWidth: PropTypes.number.isRequired
-};
 
 export default Planogram;

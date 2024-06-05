@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Planogram from '../components/Planogram';
 
 const Home = () => {
   const [initialFormData] = useState({
     productName: '',
-    productId: null,
-    heightPx: null,
-    widthPx: null,
-    height: null,
-    width: null,
+    productId: '',
+    height: '',
+    width: '',
+    heightPx: '',
+    widthPx: '',
     quantity: 1,
-    shelf: null,
-    section: null,
+    shelf: '',
+    section: '',
+    productImage: null
   });
 
   const [products, setProducts] = useState([]);
-  const [locations, setLocations] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
 
   const realLifeHeightCm = 44;
   const realLifeWidthCm = 90;
-
+  
   const [scalingFactorHeight, setScalingFactorHeight] = useState(1);
   const [scalingFactorWidth, setScalingFactorWidth] = useState(1);
 
@@ -31,22 +30,10 @@ const Home = () => {
       const slotStyles = window.getComputedStyle(firstSlot);
       const slotHeightPx = parseFloat(slotStyles.height);
       const slotWidthPx = parseFloat(slotStyles.width);
+
       setScalingFactorHeight(slotHeightPx / realLifeHeightCm);
       setScalingFactorWidth(slotWidthPx / realLifeWidthCm);
     }
-
-    // Fetch data from the backend
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:2000/api/data');
-        setLocations(response.data.locations);
-        setProducts(response.data.products);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -61,9 +48,9 @@ const Home = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
+    
     const productHeightPx = formData.height * scalingFactorHeight;
     const productWidthPx = formData.width * scalingFactorWidth;
 
@@ -75,51 +62,6 @@ const Home = () => {
 
     setProducts([...products, updatedFormData]);
     setFormData(initialFormData);
-
-    const productData = {
-      productId: formData.productId,
-      name: formData.productName,
-      height: formData.height,
-      breadth: formData.width,
-      quantity: formData.quantity,
-      productRow: formData.shelf,
-      productSection: formData.section,
-    };
-
-    try {
-      const response = await axios.post(
-        'http://localhost:2000/api/place',
-        {
-          ...productData,
-        },
-        {
-          params: {
-            productRow: parseInt(formData.shelf),
-            productSection: parseInt(formData.section),
-            quantity: formData.quantity,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        setProducts([
-          ...products,
-          {
-            ...productData,
-            quantity: formData.quantity,
-            productRow: formData.shelf,
-            productSection: formData.section,
-            heightPx: productHeightPx,
-            widthPx: productWidthPx,
-            productImage: formData.productImage,
-          },
-        ]);
-        console.log("products:", products);
-        alert('Product placed successfully');
-      }
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
   };
 
   const handleIncrement = () => {
@@ -156,11 +98,11 @@ const Home = () => {
                   value={formData.productId}
                   onChange={handleChange}
                   className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                  required
+                  required 
                 />
               </div>
             </div>
-             <div style={{ width: '150px', height: '140px' }} className="border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
+            <div style={{ width: '150px', height: '140px' }} className="border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
               {formData.productImage ? (
                 <img src={formData.productImage} alt="Product" className="object-cover w-full h-full" />
               ) : (
@@ -169,7 +111,7 @@ const Home = () => {
                   <span className="text-gray-500">Add Image</span>
                 </label>
               )}
-            </div> 
+            </div>
           </div>
           <div className="flex space-x-4">
             <div className="flex-1">
@@ -195,67 +137,79 @@ const Home = () => {
               />
             </div>
           </div>
+          <div>
+            <label className="block py-2 text-gray-700">Select Position</label>
+            <ul className="list-disc ml-6">
+              <li className="flex items-center space-x-2">
+                <label className="text-gray-700 text-sm flex-none">Shelf:</label>
+                <select
+                  name="shelf"
+                  value={formData.shelf}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300 flex-grow"
+                  required
+                >
+                  <option value="">Select Shelf</option>
+                  <option value="shelf1">Shelf 1</option>
+                  <option value="shelf2">Shelf 2</option>
+                  <option value="shelf3">Shelf 3</option>
+                </select>
+              </li>
+              <li className="flex items-center space-x-2 mt-2">
+                <label className="text-gray-700 text-sm flex-none">Section:</label>
+                <select
+                  name="section"
+                  value={formData.section}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300 flex-grow"
+                  required
+                >
+                  <option value="">Select Section</option>
+                  <option value="section1">Section 1</option>
+                  <option value="section2">Section 2</option>
+                  <option value="section3">Section 3</option>
+                </select>
+              </li>
+            </ul>
+          </div>
           <div className="flex items-center space-x-2">
             <label className="block text-gray-700">Quantity:</label>
             <button
               type="button"
               onClick={handleDecrement}
-              className="px-2 py-1 bg-gray-200 text-gray-700 rounded-md focus:outline-none"
+              className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none"
             >
               -
             </button>
-            <span>{formData.quantity}</span>
+            <input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              min="1"
+              className="w-16 text-center px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+            />
             <button
               type="button"
               onClick={handleIncrement}
-              className="px-2 py-1 bg-gray-200 text-gray-700 rounded-md focus:outline-none"
+              className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none"
             >
               +
             </button>
           </div>
-          <div>
-            <label className="block text-gray-700">Shelf:</label>
-            <input
-              type="number"
-              name="shelf"
-              value={formData.shelf}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Section:</label>
-            <input
-              type="number"
-              name="section"
-              value={formData.section}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-              required
-            />
-          </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+            className="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
-            Place Product
+            Add Item
           </button>
         </form>
       </div>
       <div className="w-3/5 bg-white shadow-md rounded p-6 border border-gray-300 overflow-auto">
-      <Planogram
-          products={products}
-          locations={locations}
-          scalingFactorHeight={scalingFactorHeight}
-          scalingFactorWidth={scalingFactorWidth}
-        />
+        <Planogram products={products} scalingFactorHeight={scalingFactorHeight} scalingFactorWidth={scalingFactorWidth} />
       </div>
     </div>
   );
 };
 
 export default Home;
-
-// Planogram.js
-// ... (no changes needed)
