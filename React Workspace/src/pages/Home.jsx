@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Planogram from '../components/Planogram';
 
@@ -119,7 +119,7 @@ const Home = () => {
     } catch (error) {
       alert(`Error: ${error.message}`);
     } finally {
-      window.location.reload(); // Refresh the page after successful submission or error
+      window.location.reload(); 
     }
   };
 
@@ -134,7 +134,7 @@ const Home = () => {
   return (
     <div className="flex h-auto overflow-hidden">
       <div className="w-2/5 bg-white shadow-md rounded p-6 border border-gray-300 overflow-auto">
-        <h2 className="text-center text-2xl font-bold underline">New Item</h2>
+        <h2 className="text-center text-2xl font-bold">New Product</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-4">
             <div className="flex-1 space-y-4">
@@ -146,6 +146,7 @@ const Home = () => {
                   value={formData.productName}
                   onChange={handleChange}
                   className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -157,6 +158,7 @@ const Home = () => {
                   value={formData.productId}
                   onChange={handleChange}
                   className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -181,6 +183,7 @@ const Home = () => {
                 value={formData.height}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+                autoComplete="off"
                 required
               />
             </div>
@@ -192,6 +195,7 @@ const Home = () => {
                 value={formData.width}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+                autoComplete="off"
                 required
               />
             </div>
@@ -216,35 +220,49 @@ const Home = () => {
           </div>
           <div>
             <label className="block text-gray-700">Shelf:</label>
-            <input
-              type="number"
-              name="shelf"
-              value={formData.shelf}
+            <select 
+              type="number" 
+              name="shelf" 
+              value={formData.shelf || ''} 
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+              autoComplete="off"
               required
-            />
+              >
+              <option value="" disabled hidden>Select a shelf</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            
           </div>
           <div>
             <label className="block text-gray-700">Section:</label>
-            <input
-              type="number"
-              name="section"
-              value={formData.section}
+            <select 
+              type="number" 
+              name="section" 
+              value={formData.section || ''} 
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+              autoComplete="off"
               required
-            />
+              >
+              <option value="" disabled hidden>Select a section</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:border-blue-300"
           >
             Place Product
           </button>
         </form>
       </div>
-      <div className="w-3/5 bg-white shadow-md rounded p-6 border border-gray-300 overflow-auto">
+    <div className="w-3/5 bg-white shadow-md rounded p-6 border border-gray-300 overflow-auto">
       <Planogram
           products={products}
           locations={locations}

@@ -1,11 +1,9 @@
 import './Planogram.css';
-import { useState } from 'react';
+import { useState} from 'react';
 import PropTypes from 'prop-types';
 
 function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidth }) {
   const gridTemplate = Array(9).fill(null);
-  const realLifeHeightCm = 44;
-  const realLifeWidthCm = 90;
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -15,18 +13,8 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
     setEditMode(false);
   };
 
-  const closePopup = () => {
-    setSelectedProduct(null);
-    setEditMode(false);
-  };
-
-  const handleEdit = () => {
-    setEditMode(true);
-  };
-
   return (
     <div className="shelf">
-      <h2 className="text-center">Planogram Display</h2>
       <div className="shelf-grid">
         {gridTemplate.map((_, index) => {
           const rowIndex = Math.floor(index / 3) + 1;
@@ -38,7 +26,8 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
               return {
                 ...product,
                 heightPx: product.height * scalingFactorHeight,
-                widthPx: product.breadth * scalingFactorWidth * (location.quantity || 1),
+                widthPx: product.breadth * scalingFactorWidth,
+                quantity: location.quantity || 1
               };
             });
 
@@ -46,21 +35,23 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
             <div key={index} className="shelf-item">
               {locationProducts.length > 0 ? (
                 locationProducts.map((product, i) => {
-
                   return (
-                    <div
-                      key={i}
-                      className="product-rectangle"
-                      style={{
-                        width: `${product.widthPx}px`,
-                        height: `${product.heightPx}px`,
-                        borderColor: (product.widthPx <= realLifeWidthCm * scalingFactorWidth && product.heightPx <= realLifeHeightCm * scalingFactorHeight) ? 'green' : 'red',
-                        backgroundColor: 'grey',
-                        borderWidth: '4px',
-                        alignSelf: 'flex-end' // Align to the bottom of the slot
-                      }}
-                      onClick={() => handleProductClick(product)}
-                    />
+                    Array.from({ length: product.quantity }).map((_, j) => (
+                      <div
+                        key={`${i}-${j}`}
+                        className="product-rectangle"
+                        style={{
+                          width: `${product.widthPx}px`,
+                          height: `${product.heightPx}px`,
+                          // borderColor: 'green',
+                          backgroundColor: 'grey',
+                          borderRadius: '4px',
+                          // borderWidth: '4px',
+                          alignSelf: 'flex-end' // Align to the bottom of the slot
+                        }}
+                        onClick={() => handleProductClick(product)}
+                      />
+                    ))
                   );
                 })
               ) : (
@@ -70,7 +61,7 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
           );
         })}
       </div>
-      {selectedProduct && (
+      {/* {selectedProduct && (
         <div className="product-popup">
           <div className="popup-content">
             <button className="close-popup" onClick={closePopup}>×</button>
@@ -152,7 +143,7 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
             )}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
