@@ -144,6 +144,10 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
           </div>
         </div>
       )} */}
+      <div className="slot-dimensions" style={{ color: 'red' }}>
+        <p>Slot height: 44cm</p>
+        <p>Slot width: 90cm</p>
+      </div>
     </div>
   );
 }
