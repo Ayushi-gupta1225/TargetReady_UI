@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Planogram from '../components/Planogram';
+import Swal from 'sweetalert2';
 
 const Home = () => {
   const [initialFormData] = useState({
@@ -54,12 +55,12 @@ const Home = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, productImage: URL.createObjectURL(file) });
-    }
-  };
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setFormData({ ...formData, productImage: URL.createObjectURL(file) });
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,12 +115,25 @@ const Home = () => {
             productImage: formData.productImage,
           },
         ]);
-        alert('Product placed successfully');
+        Swal.fire({
+          title: "Placed successfully",
+          icon: "success",
+          timer: 2500, 
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.reload(); 
+        });
       }
     } catch (error) {
-      alert(`Error: ${error.message}`);
-    } finally {
-      window.location.reload(); 
+      Swal.fire({
+        title: 'Placement unsuccessful',
+        // text: `Error: ${error.message}`,
+        icon: 'error',
+        timer: 2500, 
+        showConfirmButton: false,
+      }).then(() => {
+        window.location.reload(); // Refresh the page after the alert
+      });
     }
   };
 
@@ -134,7 +148,7 @@ const Home = () => {
   return (
     <div className="flex h-auto overflow-hidden">
       <div className="w-2/5 bg-white shadow-md rounded p-6 border border-gray-300 overflow-auto">
-        <h2 className="text-center text-2xl font-bold">New Product</h2>
+        <h2 className="text-center text-2xl font-bold">Add Product</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-4">
             <div className="flex-1 space-y-4">
@@ -163,7 +177,7 @@ const Home = () => {
                 />
               </div>
             </div>
-             <div style={{ width: '150px', height: '140px' }} className="border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
+             {/* <div style={{ width: '150px', height: '140px' }} className="border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
               {formData.productImage ? (
                 <img src={formData.productImage} alt="Product" className="object-cover w-full h-full" />
               ) : (
@@ -172,7 +186,7 @@ const Home = () => {
                   <span className="text-gray-500">Add Image</span>
                 </label>
               )}
-            </div> 
+            </div>  */}
           </div>
           <div className="flex space-x-4">
             <div className="flex-1">
