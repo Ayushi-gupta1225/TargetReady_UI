@@ -1,156 +1,121 @@
-import './Planogram.css';
-import { useState} from 'react';
+import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import styles from './Planogram.module.css';
 
-function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidth }) {
-  const gridTemplate = Array(9).fill(null);
+const Planogram = ({ products, locations, scalingFactorHeight, scalingFactorWidth }) => {
+  const [adminSettings, setAdminSettings] = useState({
+    shelfHeight: 100,
+    shelfBreadth: 100,
+    numShelves: 3,
+    numSections: 4,
+  });
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [editMode, setEditMode] = useState(false);
+  const [maxDimensions, setMaxDimensions] = useState({ width: 0, height: 0 });
+  const parentRef = useRef(null);
 
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-    setEditMode(false);
+  useEffect(() => {
+    const storedSettings = localStorage.getItem('adminSettings');
+    if (storedSettings) {
+      setAdminSettings(JSON.parse(storedSettings));
+    }
+  }, []);
+
+  useEffect(() => {
+    const calculateMaxDimensions = () => {
+      if (parentRef.current) {
+        const parentRect = parentRef.current.getBoundingClientRect();
+        setMaxDimensions({
+          width: parentRect.width,
+          height: parentRect.height,
+        });
+      }
+    };
+
+    calculateMaxDimensions();
+    window.addEventListener('resize', calculateMaxDimensions);
+    return () => window.removeEventListener('resize', calculateMaxDimensions);
+  }, []);
+
+  const calculateSlotDimensions = () => {
+    const aspectRatio = adminSettings.shelfBreadth / adminSettings.shelfHeight;
+    const marginVertical = 40; 
+    const availableWidth = maxDimensions.width - (adminSettings.numSections - 1) * 5 - 20; 
+    const availableHeight = maxDimensions.height - (adminSettings.numShelves - 1) * 5 - marginVertical - 20; 
+
+    let slotWidthPx = availableWidth / adminSettings.numSections;
+    let slotHeightPx = slotWidthPx / aspectRatio;
+
+    if (slotHeightPx * adminSettings.numShelves > availableHeight) {
+      slotHeightPx = availableHeight / adminSettings.numShelves;
+      slotWidthPx = slotHeightPx * aspectRatio;
+    }
+
+    return { slotWidthPx, slotHeightPx };
   };
 
-  return (
-    <div className="shelf">
-      <div className="shelf-grid">
-        {gridTemplate.map((_, index) => {
-          const rowIndex = Math.floor(index / 3) + 1;
-          const colIndex = (index % 3) + 1;
-          const locationProducts = locations
-            .filter(l => l.productRow === rowIndex && l.productSection === colIndex)
-            .map(location => {
-              const product = products.find(p => p.productId === location.product.productId);
-              return {
-                ...product,
-                heightPx: product.height * scalingFactorHeight,
-                widthPx: product.breadth * scalingFactorWidth,
-                quantity: location.quantity || 1
-              };
-            });
+  const { slotWidthPx, slotHeightPx } = calculateSlotDimensions();
 
-          return (
-            <div key={index} className="shelf-item">
-              {locationProducts.length > 0 ? (
-                locationProducts.map((product, i) => {
-                  return (
+  const gridTemplate = Array(adminSettings.numShelves * adminSettings.numSections).fill(null);
+
+  return (
+    <div ref={parentRef} style={{ height: 'calc(100vh - 150px)', width: 'calc(100vw - 600px)', padding: '20px', boxSizing: 'border-box', overflow: 'hidden' }}>
+      <div className={styles['planogram-wrapper']} style={{ padding: '10px' }}>
+        <div
+          className={styles['grid']}
+          style={{
+            gridTemplateColumns: `repeat(${adminSettings.numSections}, ${slotWidthPx}px)`,
+            gridTemplateRows: `repeat(${adminSettings.numShelves}, ${slotHeightPx}px)`,
+            gap: '5px',
+            margin: '20px 0', 
+          }}
+        >
+          {gridTemplate.map((_, index) => {
+            const rowIndex = Math.floor(index / adminSettings.numSections) + 1;
+            const colIndex = (index % adminSettings.numSections) + 1;
+            const locationProducts = locations
+              .filter(l => l.productRow === rowIndex && l.productSection === colIndex)
+              .map(location => {
+                const product = products.find(p => p.productId === location.product.productId);
+                return {
+                  ...product,
+                  heightPx: (product.height / adminSettings.shelfHeight) * slotHeightPx,
+                  widthPx: (product.breadth / adminSettings.shelfBreadth) * slotWidthPx,
+                  quantity: location.quantity || 1,
+                };
+              });
+
+            return (
+              <div
+                key={index}
+                className={styles['slot']}
+                style={{ height: `${slotHeightPx}px`, width: `${slotWidthPx}px` }}
+              >
+                {locationProducts.length > 0 ? (
+                  locationProducts.map((product, i) =>
                     Array.from({ length: product.quantity }).map((_, j) => (
                       <div
                         key={`${i}-${j}`}
-                        className="product-rectangle"
+                        className={styles['product-rectangle']}
                         style={{
                           width: `${product.widthPx}px`,
                           height: `${product.heightPx}px`,
-                          // borderColor: 'green',
-                          backgroundColor: 'grey',
                           borderRadius: '4px',
-                          // borderWidth: '4px',
-                          alignSelf: 'flex-end' // Align to the bottom of the slot
+                          alignSelf: 'flex-end',
                         }}
-                        onClick={() => handleProductClick(product)}
                       />
                     ))
-                  );
-                })
-              ) : (
-                <p className="empty-slot">Empty Slot</p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      {/* {selectedProduct && (
-        <div className="product-popup">
-          <div className="popup-content">
-            <button className="close-popup" onClick={closePopup}>×</button>
-            <h3>{editMode ? 'Edit Product Details' : 'Product Details'}</h3>
-            <div className="flex space-x-4">
-              <div className="flex-1 space-y-4">
-                <div>
-                  <label className="block text-gray-700">Product Name:</label>
-                  <input
-                    type="text"
-                    value={selectedProduct.productName}
-                    className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                    readOnly={!editMode}
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Product ID:</label>
-                  <input
-                    type="text"
-                    value={selectedProduct.productId}
-                    className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                    readOnly={!editMode}
-                  />
-                </div>
-              </div>
-              <div style={{ width: '150px', height: '140px' }} className="border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
-                {selectedProduct.productImage ? (
-                  <img src={selectedProduct.productImage} alt="Product" className="object-cover w-full h-full" />
+                  )
                 ) : (
-                  <span className="text-gray-500">No Image</span>
+                  <p className={styles['empty-slot']}>Empty Slot</p>
                 )}
               </div>
-            </div>
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <label className="block text-gray-700">Product Height(cm):</label>
-                <input
-                  type="text"
-                  value={selectedProduct.height}
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                  readOnly={!editMode}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-gray-700">Product Width(cm):</label>
-                <input
-                  type="text"
-                  value={selectedProduct.width}
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                  readOnly={!editMode}
-                />
-              </div>
-            </div>
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <label className="block text-gray-700">Shelf:</label>
-                <input
-                  type="text"
-                  value={selectedProduct.shelf}
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                  readOnly={!editMode}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-gray-700">Section:</label>
-                <input
-                  type="text"
-                  value={selectedProduct.section}
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-                  readOnly={!editMode}
-                />
-              </div>
-            </div>
-            {!editMode && (
-              <button className="edit-button" onClick={handleEdit}>Edit</button>
-            )}
-            {editMode && (
-              <button className="edit-button" onClick={closePopup}>Cancel</button>
-            )}
-          </div>
+            );
+          })}
         </div>
-      )} */}
-      <div className="slot-dimensions" style={{ color: 'red' }}>
-        <p>Slot height: 44cm</p>
-        <p>Slot width: 90cm</p>
       </div>
     </div>
   );
-}
+};
 
 Planogram.propTypes = {
   products: PropTypes.arrayOf(
@@ -161,22 +126,22 @@ Planogram.propTypes = {
       breadth: PropTypes.number.isRequired,
       heightPx: PropTypes.number,
       widthPx: PropTypes.number,
-      quantity: PropTypes.number.isRequired
+      quantity: PropTypes.number.isRequired,
     })
   ).isRequired,
   locations: PropTypes.arrayOf(
     PropTypes.shape({
       locationId: PropTypes.number.isRequired,
       product: PropTypes.shape({
-        productId: PropTypes.number.isRequired
+        productId: PropTypes.number.isRequired,
       }).isRequired,
       productRow: PropTypes.number.isRequired,
       productSection: PropTypes.number.isRequired,
-      quantity: PropTypes.number.isRequired
+      quantity: PropTypes.number.isRequired,
     })
   ).isRequired,
   scalingFactorHeight: PropTypes.number.isRequired,
-  scalingFactorWidth: PropTypes.number.isRequired
+  scalingFactorWidth: PropTypes.number.isRequired,
 };
 
 export default Planogram;

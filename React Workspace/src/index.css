@@ -21,3 +21,17 @@
   background-color: #666e75;
   border-radius: 5px;
 }
+
+@font-face {
+    font-family: 'HelveticaforTarget';
+    src: url('./assets/fonts/HelveticaforTarget.ttf') format('tff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'HelveticaforTarget';
+    src: url('./assets/fonts/HelveticaforTarget-Bold.ttf') format('tff');
+    font-weight: bold;
+    font-style: normal;
+  }

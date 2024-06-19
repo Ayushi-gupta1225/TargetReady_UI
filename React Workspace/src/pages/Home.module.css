@@ -1,0 +1,54 @@
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 20px 30px 20px 30px;
+    border-bottom: 1px solid #E3E3E3;
+}
+
+.left-container {
+    display: flex;
+    align-items: center;
+
+}
+
+.icon-name {
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    width: 24px; 
+    height: 24px;
+    margin-right: 8px;
+
+}
+
+.name {
+    font-size: 20px; 
+    font-weight: bold;
+    font-family: 'HelveticaforTarget';
+
+}
+
+.right-container {
+    display: flex;
+    align-items: center;
+
+}
+
+.logout-button {
+    font-size: 18px;
+    font-family: 'HelveticaforTarget';
+    font-weight: bold;
+}
+
+.main-body {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 30px 40px;
+    
+}
+
