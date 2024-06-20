@@ -1,5 +1,5 @@
 import './Planogram.css';
-import { useState} from 'react';
+import React, { useState} from 'react';
 import PropTypes from 'prop-types';
 
 function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidth }) {
@@ -32,12 +32,13 @@ function Planogram({ products, locations, scalingFactorHeight, scalingFactorWidt
             });
 
           return (
-            <div key={index} className="shelf-item">
+            <div  data-testid="shelf-item" key={index} className="shelf-item">
               {locationProducts.length > 0 ? (
                 locationProducts.map((product, i) => {
                   return (
                     Array.from({ length: product.quantity }).map((_, j) => (
                       <div
+                        data-testid="product-rectangle"
                         key={`${i}-${j}`}
                         className="product-rectangle"
                         style={{

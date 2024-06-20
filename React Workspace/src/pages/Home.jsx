@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Planogram from '../components/Planogram';
 import Swal from 'sweetalert2';
@@ -6,14 +6,14 @@ import Swal from 'sweetalert2';
 const Home = () => {
   const [initialFormData] = useState({
     productName: '',
-    productId: null,
-    heightPx: null,
-    widthPx: null,
-    height: null,
-    width: null,
+    productId: '',
+    heightPx: '',
+    widthPx: '',
+    height: '',
+    width: '',
     quantity: 1,
-    shelf: null,
-    section: null,
+    shelf: '',
+    section: '',
   });
 
   const [products, setProducts] = useState([]);
@@ -34,6 +34,7 @@ const Home = () => {
       const slotWidthPx = parseFloat(slotStyles.width);
       setScalingFactorHeight(slotHeightPx / realLifeHeightCm);
       setScalingFactorWidth(slotWidthPx / realLifeWidthCm);
+      console.log(`Scaling factor: ${scalingFactorHeight}, ${scalingFactorWidth}`);
     }
 
     // Fetch data from the backend
@@ -53,6 +54,8 @@ const Home = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    console.log(`Updated ${name}: ${value}`);
   };
 
   // const handleImageChange = (e) => {
@@ -67,6 +70,7 @@ const Home = () => {
 
     const productHeightPx = formData.height * scalingFactorHeight;
     const productWidthPx = formData.width * scalingFactorWidth;
+
 
     const updatedFormData = {
       ...formData,
@@ -135,6 +139,7 @@ const Home = () => {
         window.location.reload(); // Refresh the page after the alert
       });
     }
+    // setFormData(initialFormData);
   };
 
   const handleIncrement = () => {
@@ -152,21 +157,24 @@ const Home = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-4">
             <div className="flex-1 space-y-4">
-              <div>
-                <label className="block text-gray-700">Product Name:</label>
+              <div >
+                <label htmlFor="productName" className="block text-gray-700" >Product Name:</label>
                 <input
+                  id="productName"
                   type="text"
                   name="productName"
                   value={formData.productName}
                   onChange={handleChange}
                   className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
                   autoComplete="off"
+                  
                   required
                 />
               </div>
-              <div>
-                <label className="block text-gray-700">Product ID:</label>
+              <div >
+                <label htmlFor="productId" className="block text-gray-700">Product ID:</label>
                 <input
+                  id="productId"
                   type="text"
                   name="productId"
                   value={formData.productId}
@@ -190,8 +198,9 @@ const Home = () => {
           </div>
           <div className="flex space-x-4">
             <div className="flex-1">
-              <label className="block text-gray-700">Product Height(cm):</label>
+              <label htmlFor="height" className="block text-gray-700">Product Height(cm):</label>
               <input
+                id="height"
                 type="number"
                 name="height"
                 value={formData.height}
@@ -201,9 +210,10 @@ const Home = () => {
                 required
               />
             </div>
-            <div className="flex-1">
-              <label className="block text-gray-700">Product Width(cm):</label>
+            <div className="flex-1 ">
+              <label htmlFor="width" className="block text-gray-700">Product Width(cm):</label>
               <input
+                id="width"
                 type="number"
                 name="width"
                 value={formData.width}
@@ -214,8 +224,8 @@ const Home = () => {
               />
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <label className="block text-gray-700">Quantity:</label>
+          <div className="flex items-center space-x-2 " role="qty">
+            <label htmlFor="quantity" className="block text-gray-700">Quantity:</label>
             <button
               type="button"
               onClick={handleDecrement}
@@ -223,7 +233,7 @@ const Home = () => {
             >
               -
             </button>
-            <span>{formData.quantity}</span>
+            <span id="quantity" aria-label="quantity">{formData.quantity}</span>
             <button
               type="button"
               onClick={handleIncrement}
@@ -233,8 +243,9 @@ const Home = () => {
             </button>
           </div>
           <div>
-            <label className="block text-gray-700">Shelf:</label>
+            <label htmlFor="shelf" className="block text-gray-700">Shelf:</label>
             <select 
+              id="shelf"
               type="number" 
               name="shelf" 
               value={formData.shelf || ''} 
@@ -251,8 +262,9 @@ const Home = () => {
             
           </div>
           <div>
-            <label className="block text-gray-700">Section:</label>
+            <label htmlFor="section" className="block text-gray-700">Section:</label>
             <select 
+              id="section"
               type="number" 
               name="section" 
               value={formData.section || ''} 
