@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../utils/axiosConfig';
 import styles from './Home.module.css';
 import Form from '../components/Form';
 import Planogram from '../components/Planogram';
-import axios from 'axios';
 import Swal from 'sweetalert2';
 
 function Home() {
@@ -42,7 +42,7 @@ function Home() {
 
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:2000/api/data');
+        const response = await axiosInstance.get('/api/data');
         setLocations(response.data.locations);
         setProducts(response.data.products);
       } catch (error) {
@@ -77,7 +77,6 @@ function Home() {
       shelf: null,
       section: null,
     });
-
     const productData = {
       productId: formData.productId,
       name: formData.productName,
@@ -89,18 +88,13 @@ function Home() {
     };
 
     try {
-      const response = await axios.post(
-        'http://localhost:2000/api/place',
-        productData,
-        {
-          params: {
-            productRow: parseInt(formData.shelf),
-            productSection: parseInt(formData.section),
-            quantity: formData.quantity,
-          },
-        }
-      );
-
+      const response = await axiosInstance.post('/api/place', productData, {
+        params: {
+          productRow: parseInt(formData.shelf),
+          productSection: parseInt(formData.section),
+          quantity: formData.quantity,
+        },
+      });
       if (response.status === 200) {
         setProducts([
           ...products,
@@ -142,6 +136,11 @@ function Home() {
     setFormData({ ...formData, quantity: Math.max(1, formData.quantity - 1) });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
     <div>
       <div className={styles['navbar-container']}>
@@ -152,7 +151,7 @@ function Home() {
           </span>
         </div>
         <div className={styles['right-container']}>
-          <button className={styles['logout-button']} onClick={() => navigate('/admin')}>Admin</button>
+          <button className={styles['logout-button']} onClick={handleLogout}>Logout</button>
         </div>
       </div>
       <div className={styles['main-body']}>

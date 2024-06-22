@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Planogram.module.css';
 
-const Planogram = ({ products, locations, scalingFactorHeight, scalingFactorWidth }) => {
+const Planogram = ({ products, locations}) => {
   const [adminSettings, setAdminSettings] = useState({
     shelfHeight: 100,
     shelfBreadth: 100,
@@ -54,11 +54,18 @@ const Planogram = ({ products, locations, scalingFactorHeight, scalingFactorWidt
   };
 
   const { slotWidthPx, slotHeightPx } = calculateSlotDimensions();
-
+  
   const gridTemplate = Array(adminSettings.numShelves * adminSettings.numSections).fill(null);
 
   return (
-    <div ref={parentRef} style={{ height: 'calc(100vh - 150px)', width: 'calc(100vw - 600px)', padding: '20px', boxSizing: 'border-box', overflow: 'hidden' }}>
+    <div ref={parentRef} style={{ 
+      height: 'calc(100vh - 150px)', 
+      width: 'calc(100vw - 600px)', 
+      padding: '20px', 
+      boxSizing: 'border-box', 
+      overflow: 'hidden' 
+      }}
+      >
       <div className={styles['planogram-wrapper']} style={{ padding: '10px' }}>
         <div
           className={styles['grid']}
@@ -107,7 +114,7 @@ const Planogram = ({ products, locations, scalingFactorHeight, scalingFactorWidt
                   )
                 ) : (
                   <p className={styles['empty-slot']}>Empty Slot</p>
-                )}
+                  )}
               </div>
             );
           })}
@@ -127,8 +134,7 @@ Planogram.propTypes = {
       heightPx: PropTypes.number,
       widthPx: PropTypes.number,
       quantity: PropTypes.number.isRequired,
-    })
-  ).isRequired,
+    })).isRequired,
   locations: PropTypes.arrayOf(
     PropTypes.shape({
       locationId: PropTypes.number.isRequired,
@@ -138,10 +144,7 @@ Planogram.propTypes = {
       productRow: PropTypes.number.isRequired,
       productSection: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
-    })
-  ).isRequired,
-  scalingFactorHeight: PropTypes.number.isRequired,
-  scalingFactorWidth: PropTypes.number.isRequired,
+    })).isRequired,
 };
 
 export default Planogram;

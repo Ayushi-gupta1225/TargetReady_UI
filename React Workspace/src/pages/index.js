@@ -1,11 +1,9 @@
 import Home from './Home';
-import ContactUs from './ContactUs';
-import AboutUs from './AboutUs';
 import { AdminPage } from './AdminPage';
+import LoginPage from './LoginPage'
 
 export{
     Home,
-    ContactUs,
-    AboutUs,
-    AdminPage
+    AdminPage,
+    LoginPage
 }

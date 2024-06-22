@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminPage.module.css';
+import SubmitButton from '../components/SubmitButton';
 
-export const AdminPage = () => {
+const AdminPage = () => {
   const navigate = useNavigate();
   const [settings, setSettings] = useState({
     shelfHeight: '',
@@ -19,6 +20,11 @@ export const AdminPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     localStorage.setItem('adminSettings', JSON.stringify(settings));
+    window.location.reload();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
     navigate('/');
   };
 
@@ -32,18 +38,18 @@ export const AdminPage = () => {
           </span>
         </div>
         <div className={styles['right-container']}>
-          <button className={styles['logout-button']} onClick={() => navigate('/')}>Home</button>
+          <button className={styles['logout-button']} onClick={handleLogout}>Logout</button>
         </div>
       </div>
       <div className={styles['form-wrapper']}>
         <div className={styles['form-card']}>
           <form onSubmit={handleSubmit} className={styles['form-fields']}>
             <div className={styles['form-field-location']}>
-              <label>Shelf Height</label>
+              <label>Slot Height</label>
               <input type="number" name="shelfHeight" value={settings.shelfHeight} onChange={handleChange} required />
             </div>
             <div className={styles['form-field-location']}>
-              <label>Shelf Breadth</label>
+              <label>Slot Breadth</label>
               <input type="number" name="shelfBreadth" value={settings.shelfBreadth} onChange={handleChange} required />
             </div>
             <div className={styles['form-field-location']}>
@@ -54,15 +60,16 @@ export const AdminPage = () => {
               <label>No. of Sections</label>
               <input type="number" name="numSections" value={settings.numSections} onChange={handleChange} required />
             </div>
-            <button type="submit" className={styles['place-product-button']}>
-              <div className={styles['button-text']}>Set Dimensions</div>
-              <div className={styles['box-arrow']}>
-                <img src='./src/assets/arrow-right.svg' alt='Icon' className={styles['icon-arrow']} />
-              </div>
-            </button>
+            <SubmitButton
+              text="Set Dimensions"
+              icon='./src/assets/arrow-right.svg'
+              animate
+            />
           </form>
         </div>
       </div>
     </div>
   );
 };
+
+export default AdminPage;
