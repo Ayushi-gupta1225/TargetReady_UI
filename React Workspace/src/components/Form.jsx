@@ -1,7 +1,23 @@
+import { useState, useEffect } from 'react';
 import styles from './Form.module.css';
 import SubmitButton from '../components/SubmitButton';
+import axiosInstance from '../utils/axiosConfig';
 
-function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDecrement }) {
+function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDecrement, planogramId }) {
+  const [planograms, setPlanograms] = useState([]);
+
+  useEffect(() => {
+    const fetchPlanograms = async () => {
+      try {
+        const response = await axiosInstance.get('/api/planograms');
+        setPlanograms(response.data);
+      } catch (error) {
+        console.error('Error fetching planograms:', error);
+      }
+    };
+    fetchPlanograms();
+  }, []);
+
   return (
     <div className={styles['form-wrapper']}>
       <div className={styles['product-wrapper']}>
@@ -16,10 +32,6 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
           <div className={styles['form-field-id']}>
             <label>Product Name</label>
             <input type="text" name="productName" value={formData.productName} onChange={handleChange} required />
-          </div>
-          <div className={styles['form-field-id']}>
-            <label>Product ID</label>
-            <input type="text" name="productId" value={formData.productId} onChange={handleChange} required />
           </div>
           <div className={styles['form-field-dim-container']}>
             <div className={styles['form-field-dim']}>
@@ -49,6 +61,17 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
           <div className={styles['form-field-location']}>
             <label>Section</label>
             <input type="text" name="section" value={formData.section || ''} onChange={handleChange} required />
+          </div>
+          <div className={styles['form-field-location']}>
+            <label>Planogram</label>
+            <select name="planogramId" value={planogramId} onChange={handleChange} required>
+              <option value="">Select a Planogram</option>
+              {planograms.map((planogram) => (
+                <option key={planogram.planogramId} value={planogram.planogramId}>
+                  {planogram.name}
+                </option>
+              ))}
+            </select>
           </div>
           <SubmitButton
             text="Place Product"

@@ -39,7 +39,7 @@
     flex-grow: 1;
   }
   
-  /* Arrow animation on hover */
+  /* Right arrow animation */
   .submit-button:hover .animate-arrow {
     animation: arrow-decay 0.8s ease-in-out;
   }
@@ -65,7 +65,7 @@
     }
   }
   
-  /* Plus icon animation on hover */
+  /* Plus icon animation */
   .submit-button:hover .animate-plus {
     animation: plus-grow 0.5s ease-in-out;
   }

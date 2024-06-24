@@ -12,23 +12,50 @@ function Home() {
   const [locations, setLocations] = useState([]);
   const [formData, setFormData] = useState({
     productName: '',
-    productId: null,
     height: null,
     width: null,
     quantity: 1,
     shelf: null,
     section: null,
+    planogramId: '',
   });
+  const [planograms, setPlanograms] = useState([]);
+  const [currentPlanogram, setCurrentPlanogram] = useState(0);
   const realLifeHeightCm = 45;
   const realLifeWidthCm = 90;
   const [scalingFactorHeight, setScalingFactorHeight] = useState(1);
   const [scalingFactorWidth, setScalingFactorWidth] = useState(1);
-  const [adminSettings, setAdminSettings] = useState({
-    shelfHeight: 100,
-    shelfBreadth: 100,
-    numShelves: 3,
-    numSections: 3,
-  });
+
+  useEffect(() => {
+    const fetchPlanograms = async () => {
+      try {
+        const response = await axiosInstance.get('/api/planograms');
+        console.log('Fetched planograms:', response.data);
+        setPlanograms(response.data);
+
+        if (response.data.length > 0) {
+          const initialPlanogramId = response.data[0].planogramId;
+          fetchData(initialPlanogramId);
+        }
+      } catch (error) {
+        console.error('Error fetching planograms:', error);
+      }
+    };
+
+    fetchPlanograms();
+  }, []);
+
+  const fetchData = async (planogramId) => {
+    try {
+      const response = await axiosInstance.get(`/api/planogram/${planogramId}/data`);
+      console.log(`Fetched data for planogram ${planogramId}:`, response.data);
+      setLocations(response.data.locations);
+      setProducts(response.data.products);
+    } catch (error) {
+      console.error(`Error fetching data for planogram ${planogramId}:`, error);
+      console.log('Error details:', error.response ? error.response.data : error.message);
+    }
+  };
 
   useEffect(() => {
     const firstSlot = document.querySelector(`.${styles.slot}`);
@@ -39,19 +66,7 @@ function Home() {
       setScalingFactorHeight(slotHeightPx / realLifeHeightCm);
       setScalingFactorWidth(slotWidthPx / realLifeWidthCm);
     }
-
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/api/data');
-        setLocations(response.data.locations);
-        setProducts(response.data.products);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  }, [planograms]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,39 +77,26 @@ function Home() {
     e.preventDefault();
     const productHeightPx = formData.height * scalingFactorHeight;
     const productWidthPx = formData.width * scalingFactorWidth;
-    const updatedFormData = {
-      ...formData,
-      heightPx: productHeightPx,
-      widthPx: productWidthPx,
-    };
-    setProducts([...products, updatedFormData]);
-    setFormData({
-      productName: '',
-      productId: null,
-      height: null,
-      width: null,
-      quantity: 1,
-      shelf: null,
-      section: null,
-    });
+
     const productData = {
-      productId: formData.productId,
       name: formData.productName,
       height: formData.height,
       breadth: formData.width,
       quantity: formData.quantity,
       productRow: formData.shelf,
       productSection: formData.section,
+      planogramId: formData.planogramId,
     };
 
     try {
-      const response = await axiosInstance.post('/api/place', productData, {
+      const response = await axiosInstance.post(`/api/planogram/${formData.planogramId}/place`, productData, {
         params: {
           productRow: parseInt(formData.shelf),
           productSection: parseInt(formData.section),
           quantity: formData.quantity,
         },
       });
+
       if (response.status === 200) {
         setProducts([
           ...products,
@@ -117,6 +119,7 @@ function Home() {
         });
       }
     } catch (error) {
+      console.error('Placement error:', error.response ? error.response.data : error.message); // Debugging log
       Swal.fire({
         title: 'Placement unsuccessful',
         icon: 'error',
@@ -141,6 +144,16 @@ function Home() {
     navigate('/');
   };
 
+  const handlePlanogramChange = (newPlanogramIndex) => {
+    setCurrentPlanogram(newPlanogramIndex);
+    const newPlanogramId = planograms[newPlanogramIndex].planogramId;
+    fetchData(newPlanogramId);
+  };
+
+  const currentPlanogramData = planograms.length > 0 ? planograms[currentPlanogram] : null;
+  const filteredLocations = locations.filter(location => location.planogram.planogramId === currentPlanogramData?.planogramId);
+  const filteredProducts = products.filter(product => filteredLocations.some(location => location.product.productId === product.productId));
+
   return (
     <div>
       <div className={styles['navbar-container']}>
@@ -161,14 +174,32 @@ function Home() {
           handleSubmit={handleSubmit}
           handleIncrement={handleIncrement}
           handleDecrement={handleDecrement}
+          planogramId={formData.planogramId}
         />
-        <Planogram
-          products={products}
-          locations={locations}
-          scalingFactorHeight={scalingFactorHeight}
-          scalingFactorWidth={scalingFactorWidth}
-          adminSettings={adminSettings}
-        />
+        {planograms.length > 0 && (
+          <div>
+            <h3>{currentPlanogramData?.name}</h3>
+            <Planogram
+              products={filteredProducts}
+              locations={filteredLocations}
+              planogram={currentPlanogramData}
+            />
+            <div className={styles['planogram-navigation']}>
+              <button
+                onClick={() => handlePlanogramChange(Math.max(currentPlanogram - 1, 0))}
+                disabled={currentPlanogram === 0}
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => handlePlanogramChange(Math.min(currentPlanogram + 1, planograms.length - 1))}
+                disabled={currentPlanogram === planograms.length - 1}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

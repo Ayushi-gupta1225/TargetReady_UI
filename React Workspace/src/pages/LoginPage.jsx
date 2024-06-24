@@ -16,7 +16,7 @@ const LoginPage = () => {
         const token = response.data.jwtToken;
         localStorage.setItem('token', token);
         const decodedToken = JSON.parse(atob(token.split('.')[1].replace(/_/g, '/').replace(/-/g, '+')));
-        const role = decodedToken.role; // Make sure to get the correct role from the token
+        const role = decodedToken.role; 
         if (role === 'ROLE_ADMIN') {
           navigate('/admin');
         } else {

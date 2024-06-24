@@ -15,7 +15,7 @@ function SignUp() {
         userName: username,
         password: password
       });
-      if (response.status === 201) {
+      if (response.status === 200) {
         alert('Registration successful!');
         navigate('/'); // Redirect to Login page after successful registration
       }
@@ -39,7 +39,7 @@ function SignUp() {
         <div className={styles['form-container']}>
           <div className={styles['form-card']}>
             <div className={styles['form-fields']}>
-              <h1 className={styles['form-title']}>Sign Up</h1>
+              <h1 className={styles['form-title']}>SIGN UP</h1>
               <div className={styles['form-field']}>
                 <label>Username</label>
                 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />

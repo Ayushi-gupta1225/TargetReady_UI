@@ -28,13 +28,11 @@
     font-size: 20px; 
     font-weight: bold;
     font-family: 'HelveticaforTarget';
-
 }
 
 .right-container {
     display: flex;
     align-items: center;
-
 }
 
 .logout-button {
@@ -48,6 +46,12 @@
     justify-content: space-between;
     gap: 20px;
     padding: 30px 40px;
-    
 }
 
+.planogram-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+  
