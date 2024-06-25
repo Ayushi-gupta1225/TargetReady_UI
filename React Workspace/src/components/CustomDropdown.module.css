@@ -3,12 +3,6 @@
   width: 100%;
 }
 
-.field-placeholder {
-  font-family: 'HelveticaforTarget';
-  font-size: 12px;
-  color: #999999; /* Placeholder color */
-}
-
 .dropdown-header {
   background-color: #ffffff;
   border: 1px solid #E3E3E3;
@@ -22,6 +16,11 @@
   font-size: 12px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   font-family: 'HelveticaforTarget';
+  color: #9ca3af; /* Default placeholder color */
+}
+
+.filled {
+  color: #000000; /* Color for selected value */
 }
 
 .dropdown-arrow {
@@ -47,6 +46,7 @@
   font-family: 'HelveticaforTarget';
   font-size: 12px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  color: #000000; 
 }
 
 .dropdown-list-item {

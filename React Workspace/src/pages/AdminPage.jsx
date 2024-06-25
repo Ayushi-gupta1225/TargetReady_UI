@@ -117,23 +117,27 @@ const AdminPage = () => {
                     <form onSubmit={handleSubmit} className={styles['form-fields']}>
                         <div className={styles['form-field']}>
                             <label>Name</label>
-                            <input type="text" name="name" value={settings.name} onChange={handleChange} required />
+                            <input type="text" name="name" value={settings.name} onChange={handleChange} placeholder='Enter Planogram Name' required />
                         </div>
-                        <div className={styles['form-field']}>
-                            <label>Slot Height</label>
-                            <input type="number" name="slotHeight" value={settings.slotHeight} onChange={handleChange} required />
+                        <div className={styles['horizontal-field-container']}>
+                            <div className={styles['form-field']}>
+                                <label>Slot Height</label>
+                                <input type="number" name="slotHeight" value={settings.slotHeight} onChange={handleChange} placeholder='Enter Slot Height' required />
+                            </div>
+                            <div className={styles['form-field']}>
+                                <label>Slot Width</label>
+                                <input type="number" name="slotWidth" value={settings.slotWidth} onChange={handleChange} placeholder='Enter Slot Width' required />
+                            </div>
                         </div>
-                        <div className={styles['form-field']}>
-                            <label>Slot Width</label>
-                            <input type="number" name="slotWidth" value={settings.slotWidth} onChange={handleChange} required />
-                        </div>
-                        <div className={styles['form-field']}>
-                            <label>No. of Shelves</label>
-                            <input type="number" name="numShelves" value={settings.numShelves} onChange={handleChange} required />
-                        </div>
-                        <div className={styles['form-field']}>
-                            <label>No. of Sections</label>
-                            <input type="number" name="numSections" value={settings.numSections} onChange={handleChange} required />
+                        <div className={styles['horizontal-field-container']}>
+                            <div className={styles['form-field']}>
+                                <label>No. of Shelves</label>
+                                <input type="number" name="numShelves" value={settings.numShelves} onChange={handleChange} placeholder='Enter No. of Shelves' required />
+                            </div>
+                            <div className={styles['form-field']}>
+                                <label>No. of Sections</label>
+                                <input type="number" name="numSections" value={settings.numSections} onChange={handleChange} placeholder='Enter No. of Sections' required />
+                            </div>
                         </div>
                         <SubmitButton
                             text="Create Planogram"

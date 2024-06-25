@@ -23,14 +23,18 @@ const CustomDropdown = ({ options, selectedOption, onOptionSelect, disabled, wid
     };
   }, []);
 
+  const isPlaceholder = selectedOption === 'Select a Planogram' || selectedOption === 'Select a Shelf' || selectedOption === 'Select a Section';
+
   return (
     <div className={styles['dropdown-container']} ref={dropdownRef} style={{ width: width }}>
       <div
-        className={styles['dropdown-header']}
+        className={`${styles['dropdown-header']} ${!isPlaceholder ? styles['filled'] : ''}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
       >
-        <div className={styles['field-placeholder']}>{selectedOption}</div>
+        <div className={styles['field-placeholder']}>
+          {selectedOption}
+        </div>
         <img
           src="./src/assets/arrow_up.svg"
           alt="Arrow"
