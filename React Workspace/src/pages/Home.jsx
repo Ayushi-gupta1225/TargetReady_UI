@@ -4,6 +4,7 @@ import axiosInstance from '../utils/axiosConfig';
 import styles from './Home.module.css';
 import Form from '../components/Form';
 import Planogram from '../components/Planogram';
+import SubmitButton from '../components/SubmitButton';
 import Swal from 'sweetalert2';
 
 function Home() {
@@ -77,6 +78,11 @@ function Home() {
     e.preventDefault();
     const productHeightPx = formData.height * scalingFactorHeight;
     const productWidthPx = formData.width * scalingFactorWidth;
+    const updatedFormData = {
+      ...formData,
+      heightPx: productHeightPx,
+      widthPx: productWidthPx,
+    };
 
     const productData = {
       name: formData.productName,
@@ -87,6 +93,8 @@ function Home() {
       productSection: formData.section,
       planogramId: formData.planogramId,
     };
+
+    console.log('Submitting product data:', productData); // Debugging log
 
     try {
       const response = await axiosInstance.post(`/api/planogram/${formData.planogramId}/place`, productData, {
@@ -154,6 +162,9 @@ function Home() {
   const filteredLocations = locations.filter(location => location.planogram.planogramId === currentPlanogramData?.planogramId);
   const filteredProducts = products.filter(product => filteredLocations.some(location => location.product.productId === product.productId));
 
+  console.log('Filtered Products:', filteredProducts);
+  console.log('Filtered Locations:', filteredLocations);
+
   return (
     <div>
       <div className={styles['navbar-container']}>
@@ -178,25 +189,32 @@ function Home() {
         />
         {planograms.length > 0 && (
           <div>
-            <h3>{currentPlanogramData?.name}</h3>
+            <div className={styles['planogram-title']}>{currentPlanogramData?.name}</div>
             <Planogram
               products={filteredProducts}
               locations={filteredLocations}
               planogram={currentPlanogramData}
             />
             <div className={styles['planogram-navigation']}>
-              <button
+              <SubmitButton
+                text="Previous"
+                icon='./src/assets/arrow-left.svg'
                 onClick={() => handlePlanogramChange(Math.max(currentPlanogram - 1, 0))}
                 disabled={currentPlanogram === 0}
-              >
-                Previous
-              </button>
-              <button
+                variant="previous"
+                width="150px"
+                buttonColor = '#000000'
+                arrowColor = '#7B7979'
+              />
+              <SubmitButton
+                text="Next"
+                icon='./src/assets/arrow-right.svg'
                 onClick={() => handlePlanogramChange(Math.min(currentPlanogram + 1, planograms.length - 1))}
                 disabled={currentPlanogram === planograms.length - 1}
-              >
-                Next
-              </button>
+                width="150px"
+                buttonColor = '#000000'
+                arrowColor = '#7B7979'
+              />
             </div>
           </div>
         )}

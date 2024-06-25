@@ -45,7 +45,7 @@ const Planogram = ({ products, locations, planogram }) => {
 
   return (
     <div ref={parentRef} style={{ 
-      height: 'calc(100vh - 150px)', 
+      height: 'calc(100vh - 250px)', 
       width: 'calc(100vw - 600px)', 
       padding: '20px', 
       boxSizing: 'border-box', 

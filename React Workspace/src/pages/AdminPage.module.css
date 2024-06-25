@@ -49,10 +49,13 @@
 
 .form-wrapper {
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  justify-content: flex-end;
+  align-items: end;
   width: 100%;
   padding: 20px;
+  margin: 30px;
+  margin-left: 100px;
+  /* border:solid 1px; */
 }
 
 .form-card {
@@ -61,7 +64,8 @@
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.1);
-  width: 360px;
+  width: 30%;
+  /* border:solid 1px; */
 }
 
 .form-fields {
@@ -78,6 +82,7 @@
   margin-bottom: 7px;
   font-size: 12px;
   font-family: 'HelveticaforTarget';
+  font-weight: bold;
 }
 
 .form-field input {
@@ -101,8 +106,31 @@
   border: 1px solid #E3E3E3;
   padding: 20px;
   border-radius: 8px;
-  width: 360px;
+  width: 480px;
   text-align: center;
+}
+
+.admin-card-title {
+  font-size: 30px;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+  text-align: left;
+  text-align: center;
+}
+
+.admin-card-content {
+  font-size: 20px;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+  text-align: left;
+  color: rgb(174, 174, 174);
+  margin: 9px;
+}
+
+.horizontal-aligning {
+  display: flex;
+  justify-content: space-between;
+
 }
 
 .navigation-buttons {
@@ -110,21 +138,9 @@
   justify-content: space-between;
   width: 100%;
   margin-top: 10px;
+  gap: 10px; /* Adjust this value to change the space between buttons */
 }
 
-.navigation-buttons button {
-  font-size: 16px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.delete-button {
+.delete-button-wrapper {
   margin-top: 20px;
-  font-size: 16px;
-  padding: 10px;
-  background-color: red;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
 }

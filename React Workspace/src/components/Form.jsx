@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Form.module.css';
 import SubmitButton from '../components/SubmitButton';
+import CustomDropdown from '../components/CustomDropdown';
 import axiosInstance from '../utils/axiosConfig';
 
 function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDecrement, planogramId }) {
   const [planograms, setPlanograms] = useState([]);
+  const [selectedPlanogram, setSelectedPlanogram] = useState(planogramId);
 
   useEffect(() => {
     const fetchPlanograms = async () => {
@@ -17,6 +19,12 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
     };
     fetchPlanograms();
   }, []);
+
+  const handleDropdownSelect = (option) => {
+    const selectedPlanogram = planograms.find(planogram => planogram.name === option);
+    setSelectedPlanogram(selectedPlanogram ? selectedPlanogram.planogramId : '');
+    handleChange({ target: { name: 'planogramId', value: selectedPlanogram ? selectedPlanogram.planogramId : '' } });
+  };
 
   return (
     <div className={styles['form-wrapper']}>
@@ -31,19 +39,20 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
         <form onSubmit={handleSubmit} className={styles['form-fields']} autoComplete="off">
           <div className={styles['form-field-id']}>
             <label>Product Name</label>
-            <input type="text" name="productName" value={formData.productName} onChange={handleChange} required />
+            <input type="text" name="productName" value={formData.productName} onChange={handleChange} placeholder='Enter Product Name' required />
           </div>
           <div className={styles['form-field-dim-container']}>
             <div className={styles['form-field-dim']}>
               <label>Height</label>
-              <input type="number" name="height" value={formData.height} onChange={handleChange} required />
+              <input type="number" name="height" value={formData.height} onChange={handleChange} placeholder='Enter Height' required />
             </div>
             <div className={styles['form-field-dim']}>
               <label>Width</label>
-              <input type="number" name="width" value={formData.width} onChange={handleChange} required />
+              <input type="number" name="width" value={formData.width} onChange={handleChange} placeholder='Enter Width' required />
             </div>
           </div>
           <div className={styles['form-field-row']}>
+            <label>Quantity</label>
             <div className={styles['quantity-selector']}>
               <button type="button" onClick={handleDecrement} className={styles['quantity-minus']}>
                 <img src='./src/assets/minus.svg' alt='Icon' className={styles['icon']} />
@@ -55,23 +64,35 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
             </div>
           </div>
           <div className={styles['form-field-location']}>
-            <label>Shelf</label>
-            <input type="text" name="shelf" value={formData.shelf || ''} onChange={handleChange} required />
-          </div>
-          <div className={styles['form-field-location']}>
-            <label>Section</label>
-            <input type="text" name="section" value={formData.section || ''} onChange={handleChange} required />
-          </div>
-          <div className={styles['form-field-location']}>
             <label>Planogram</label>
-            <select name="planogramId" value={planogramId} onChange={handleChange} required>
-              <option value="">Select a Planogram</option>
-              {planograms.map((planogram) => (
-                <option key={planogram.planogramId} value={planogram.planogramId}>
-                  {planogram.name}
-                </option>
-              ))}
-            </select>
+            <CustomDropdown
+              options={planograms.map(planogram => planogram.name)}
+              selectedOption={planograms.find(planogram => planogram.planogramId === selectedPlanogram)?.name || 'Select a Planogram'}
+              onOptionSelect={handleDropdownSelect}
+              width="100%"
+            />
+          </div>
+          <div className={styles['form-field-location-container']}>
+            <div className={styles['form-field-location']}>
+              <label>Shelf</label>
+              <CustomDropdown
+                options={Array.from({ length: selectedPlanogram ? planograms.find(planogram => planogram.planogramId === selectedPlanogram).numShelves : 0 }, (_, i) => (i + 1).toString())}
+                selectedOption={formData.shelf ? formData.shelf.toString() : 'Select a Shelf'}
+                onOptionSelect={(option) => handleChange({ target: { name: 'shelf', value: option } })}
+                disabled={!selectedPlanogram}
+                width="136px"
+              />
+            </div>
+            <div className={styles['form-field-location']}>
+              <label>Section</label>
+              <CustomDropdown
+                options={Array.from({ length: selectedPlanogram ? planograms.find(planogram => planogram.planogramId === selectedPlanogram).numSections : 0 }, (_, i) => (i + 1).toString())}
+                selectedOption={formData.section ? formData.section.toString() : 'Select a Section'}
+                onOptionSelect={(option) => handleChange({ target: { name: 'section', value: option } })}
+                disabled={!selectedPlanogram}
+                width="136px"
+              />
+            </div>
           </div>
           <SubmitButton
             text="Place Product"

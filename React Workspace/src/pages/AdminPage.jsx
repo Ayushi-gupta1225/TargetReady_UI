@@ -15,6 +15,7 @@ const AdminPage = () => {
     });
     const [planograms, setPlanograms] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [locations, setLocations] = useState([]);
 
     useEffect(() => {
         const fetchPlanograms = async () => {
@@ -27,6 +28,20 @@ const AdminPage = () => {
         };
         fetchPlanograms();
     }, []);
+
+    useEffect(() => {
+        if (planograms.length > 0) {
+            const fetchPlanogramData = async () => {
+                try {
+                    const response = await axiosInstance.get(`/api/planogram/${planograms[currentIndex].planogramId}/data`);
+                    setLocations(response.data.locations);
+                } catch (error) {
+                    console.error('Error fetching planogram data:', error);
+                }
+            };
+            fetchPlanogramData();
+        }
+    }, [planograms, currentIndex]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -69,6 +84,21 @@ const AdminPage = () => {
         setCurrentIndex((prevIndex) => (prevIndex - 1 + planograms.length) % planograms.length);
     };
 
+    const calculateTotalProducts = () => {
+        return locations.reduce((total, location) => total + location.quantity, 0);
+    };
+
+    const calculatePercentageOccupied = () => {
+        const slotWidth = planograms[currentIndex].slotWidth;
+        const slotCount = planograms[currentIndex].numShelves * planograms[currentIndex].numSections;
+        let totalOccupancy = 0;
+
+        locations.forEach(location => {
+            totalOccupancy += location.product.breadth * location.quantity / slotWidth;
+        });
+
+        return ((totalOccupancy / slotCount) * 100).toFixed(2);
+    };
     return (
         <div className={styles['admin-wrapper']}>
             <div className={styles['navbar-container']}>
@@ -116,17 +146,49 @@ const AdminPage = () => {
                     {planograms.length > 0 && (
                         <div>
                             <div className={styles['planogram-info']}>
-                                <h3>{planograms[currentIndex].name}</h3>
-                                <p>Shelves: {planograms[currentIndex].numShelves}</p>
-                                <p>Sections: {planograms[currentIndex].numSections}</p>
-                                <p>Slot Height: {planograms[currentIndex].slotHeight}</p>
-                                <p>Slot Width: {planograms[currentIndex].slotWidth}</p>
+                                <div className={styles['admin-card-title']}>{planograms[currentIndex].name}</div>
+                                <div className={styles['horizontal-aligning']}>
+                                    <div className={styles['admin-card-content']}>Shelves: {planograms[currentIndex].numShelves}</div>
+                                    <div className={styles['admin-card-content']}>Sections: {planograms[currentIndex].numSections}</div>
+                                </div>
+                                <div className={styles['horizontal-aligning']}>
+                                    <div className={styles['admin-card-content']}>Shelves: {planograms[currentIndex].slotHeight}</div>
+                                    <div className={styles['admin-card-content']}>Sections: {planograms[currentIndex].slotWidth}</div>
+                                </div>
+                                <div className={styles['horizontal-aligning']}>
+                                    <div className={styles['admin-card-content']}>Total Products: {calculateTotalProducts()}</div>
+                                    <div className={styles['admin-card-content']}>% Occupied: {calculatePercentageOccupied()}%</div>
+                                </div>
+                                <div className={styles['navigation-buttons']}>
+                                    <SubmitButton
+                                        text="Previous"
+                                        icon='./src/assets/arrow-left.svg'
+                                        onClick={prevPlanogram}
+                                        width="130px"
+                                        variant="previous"
+                                        buttonColor = '#000000'
+                                        arrowColor = '#7B7979'
+                                    />
+                                    <SubmitButton
+                                        text="Next"
+                                        icon='./src/assets/arrow-right.svg'
+                                        onClick={nextPlanogram}
+                                        width="130px"
+                                        buttonColor = '#000000'
+                                        arrowColor = '#7B7979'
+                                    />
+                                </div>
+                                <div className={styles['delete-button-wrapper']}>
+                                    <SubmitButton
+                                        text="Delete Planogram"
+                                        icon='src/assets/trash.svg'
+                                        onClick={handleDelete}
+                                        buttonColor = '#FF0303'
+                                        arrowColor = '#FF5A5A'
+                                    />
+                                </div>
                             </div>
-                            <div className={styles['navigation-buttons']}>
-                                <button onClick={prevPlanogram}>Previous</button>
-                                <button onClick={nextPlanogram}>Next</button>
-                            </div>
-                            <button onClick={handleDelete} className={styles['delete-button']}>Delete Planogram</button>
+                            
                         </div>
                     )}
                 </div>

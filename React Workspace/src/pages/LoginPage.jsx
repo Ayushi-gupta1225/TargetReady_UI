@@ -46,11 +46,11 @@ const LoginPage = () => {
               <h1 className={styles['form-title']}>Sign In</h1>
               <div className={styles['form-field']}>
                 <label>Username</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Enter Username' />
               </div>
               <div className={styles['form-field']}>
                 <label>Password</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Enter Password' />
               </div>
               <SubmitButton
                 text="Login"
