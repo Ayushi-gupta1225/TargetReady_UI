@@ -63,3 +63,17 @@
     gap: 20px;
     padding: 30px 40px;
 }
+
+.main-body {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 30px 40px;
+    position: relative;
+    transition: filter 0.3s ease; 
+  }
+  
+  .main-body.dimmed {
+    filter: blur(2px) brightness(0.5); 
+  }
+  

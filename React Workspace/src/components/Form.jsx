@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Form.module.css';
-import SubmitButton from '../components/SubmitButton';
-import CustomDropdown from '../components/CustomDropdown';
+import SubmitButton from './SubmitButton';
+import CustomDropdown from './CustomDropdown';
 import axiosInstance from '../utils/axiosConfig';
 
-function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDecrement, planogramId }) {
+function Form({ formData, setFormData, handleSubmit, handleIncrement, handleDecrement, openPopup }) {
   const [planograms, setPlanograms] = useState([]);
-  const [selectedPlanogram, setSelectedPlanogram] = useState(planogramId);
 
   useEffect(() => {
     const fetchPlanograms = async () => {
       try {
         const response = await axiosInstance.get('/api/planograms');
-        setPlanograms(response.data);
+        const planogramData = response.data;
+        setPlanograms(planogramData);
+        if (planogramData.length > 0) {
+          setFormData((prevData) => ({
+            ...prevData,
+            planogramId: planogramData[0].planogramId
+          }));
+        }
       } catch (error) {
         console.error('Error fetching planograms:', error);
       }
     };
     fetchPlanograms();
-  }, []);
+  }, [setFormData]);
 
   const handleDropdownSelect = (option) => {
     const selectedPlanogram = planograms.find(planogram => planogram.name === option);
-    setSelectedPlanogram(selectedPlanogram ? selectedPlanogram.planogramId : '');
-    handleChange({ target: { name: 'planogramId', value: selectedPlanogram ? selectedPlanogram.planogramId : '' } });
+    if (selectedPlanogram) {
+      setFormData((prevData) => ({
+        ...prevData,
+        planogramId: selectedPlanogram.planogramId
+      }));
+    }
   };
 
   return (
@@ -33,22 +43,44 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
           text="Products"
           icon='./src/assets/plus.svg'
           animate
+          onClick={openPopup}
         />
       </div>
       <div className={styles['form-card']}>
         <form onSubmit={handleSubmit} className={styles['form-fields']} autoComplete="off">
           <div className={styles['form-field-id']}>
             <label>Product Name</label>
-            <input type="text" name="productName" value={formData.productName} onChange={handleChange} placeholder='Enter Product Name' required />
+            <input
+              type="text"
+              name="productName"
+              value={formData.productName}
+              onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+              placeholder='Enter Product Name'
+              required
+            />
           </div>
           <div className={styles['form-field-dim-container']}>
             <div className={styles['form-field-dim']}>
               <label>Height</label>
-              <input type="number" name="height" value={formData.height} onChange={handleChange} placeholder='Enter Height' required />
+              <input
+                type="number"
+                name="height"
+                value={formData.height}
+                onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                placeholder='Enter Height'
+                required
+              />
             </div>
             <div className={styles['form-field-dim']}>
               <label>Width</label>
-              <input type="number" name="width" value={formData.width} onChange={handleChange} placeholder='Enter Width' required />
+              <input
+                type="number"
+                name="width"
+                value={formData.width}
+                onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                placeholder='Enter Width'
+                required
+              />
             </div>
           </div>
           <div className={styles['form-field-row']}>
@@ -67,7 +99,7 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
             <label>Planogram</label>
             <CustomDropdown
               options={planograms.map(planogram => planogram.name)}
-              selectedOption={planograms.find(planogram => planogram.planogramId === selectedPlanogram)?.name || 'Select a Planogram'}
+              selectedOption={planograms.find(planogram => planogram.planogramId === formData.planogramId)?.name || 'Select a Planogram'}
               onOptionSelect={handleDropdownSelect}
               width="100%"
             />
@@ -76,20 +108,20 @@ function Form({ formData, handleChange, handleSubmit, handleIncrement, handleDec
             <div className={styles['form-field-location']}>
               <label>Shelf</label>
               <CustomDropdown
-                options={Array.from({ length: selectedPlanogram ? planograms.find(planogram => planogram.planogramId === selectedPlanogram).numShelves : 0 }, (_, i) => (i + 1).toString())}
+                options={Array.from({ length: formData.planogramId ? planograms.find(planogram => planogram.planogramId === formData.planogramId).numShelves : 0 }, (_, i) => (i + 1).toString())}
                 selectedOption={formData.shelf ? formData.shelf.toString() : 'Select a Shelf'}
-                onOptionSelect={(option) => handleChange({ target: { name: 'shelf', value: option } })}
-                disabled={!selectedPlanogram}
+                onOptionSelect={(option) => setFormData({ ...formData, shelf: option })}
+                disabled={!formData.planogramId}
                 width="136px"
               />
             </div>
             <div className={styles['form-field-location']}>
               <label>Section</label>
               <CustomDropdown
-                options={Array.from({ length: selectedPlanogram ? planograms.find(planogram => planogram.planogramId === selectedPlanogram).numSections : 0 }, (_, i) => (i + 1).toString())}
+                options={Array.from({ length: formData.planogramId ? planograms.find(planogram => planogram.planogramId === formData.planogramId).numSections : 0 }, (_, i) => (i + 1).toString())}
                 selectedOption={formData.section ? formData.section.toString() : 'Select a Section'}
-                onOptionSelect={(option) => handleChange({ target: { name: 'section', value: option } })}
-                disabled={!selectedPlanogram}
+                onOptionSelect={(option) => setFormData({ ...formData, section: option })}
+                disabled={!formData.planogramId}
                 width="136px"
               />
             </div>

@@ -6,6 +6,7 @@ import Form from '../components/Form';
 import Planogram from '../components/Planogram';
 import SubmitButton from '../components/SubmitButton';
 import Swal from 'sweetalert2';
+import ProductPopup from '../components/ProductPopup';
 
 function Home() {
   const navigate = useNavigate();
@@ -13,15 +14,16 @@ function Home() {
   const [locations, setLocations] = useState([]);
   const [formData, setFormData] = useState({
     productName: '',
-    height: null,
-    width: null,
+    height: '',
+    width: '',
     quantity: 1,
-    shelf: null,
-    section: null,
-    planogramId: '',
+    shelf: '',
+    section: '',
+    planogramId: ''
   });
   const [planograms, setPlanograms] = useState([]);
   const [currentPlanogram, setCurrentPlanogram] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
   const realLifeHeightCm = 45;
   const realLifeWidthCm = 90;
   const [scalingFactorHeight, setScalingFactorHeight] = useState(1);
@@ -31,7 +33,6 @@ function Home() {
     const fetchPlanograms = async () => {
       try {
         const response = await axiosInstance.get('/api/planograms');
-        console.log('Fetched planograms:', response.data);
         setPlanograms(response.data);
 
         if (response.data.length > 0) {
@@ -42,19 +43,16 @@ function Home() {
         console.error('Error fetching planograms:', error);
       }
     };
-
     fetchPlanograms();
   }, []);
 
   const fetchData = async (planogramId) => {
     try {
       const response = await axiosInstance.get(`/api/planogram/${planogramId}/data`);
-      console.log(`Fetched data for planogram ${planogramId}:`, response.data);
       setLocations(response.data.locations);
       setProducts(response.data.products);
     } catch (error) {
       console.error(`Error fetching data for planogram ${planogramId}:`, error);
-      console.log('Error details:', error.response ? error.response.data : error.message);
     }
   };
 
@@ -71,7 +69,10 @@ function Home() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -81,7 +82,7 @@ function Home() {
     const updatedFormData = {
       ...formData,
       heightPx: productHeightPx,
-      widthPx: productWidthPx,
+      widthPx: productWidthPx
     };
 
     const productData = {
@@ -91,19 +92,21 @@ function Home() {
       quantity: formData.quantity,
       productRow: formData.shelf,
       productSection: formData.section,
-      planogramId: formData.planogramId,
+      planogramId: formData.planogramId
     };
 
-    console.log('Submitting product data:', productData); // Debugging log
-
     try {
-      const response = await axiosInstance.post(`/api/planogram/${formData.planogramId}/place`, productData, {
-        params: {
-          productRow: parseInt(formData.shelf),
-          productSection: parseInt(formData.section),
-          quantity: formData.quantity,
-        },
-      });
+      const response = await axiosInstance.post(
+        `/api/planogram/${formData.planogramId}/place`,
+        productData,
+        {
+          params: {
+            productRow: parseInt(formData.shelf),
+            productSection: parseInt(formData.section),
+            quantity: formData.quantity
+          }
+        }
+      );
 
       if (response.status === 200) {
         setProducts([
@@ -114,25 +117,25 @@ function Home() {
             productRow: formData.shelf,
             productSection: formData.section,
             heightPx: productHeightPx,
-            widthPx: productWidthPx,
-          },
+            widthPx: productWidthPx
+          }
         ]);
         Swal.fire({
           title: "Placed successfully",
           icon: "success",
           timer: 2500,
-          showConfirmButton: false,
+          showConfirmButton: false
         }).then(() => {
           window.location.reload();
         });
       }
     } catch (error) {
-      console.error('Placement error:', error.response ? error.response.data : error.message); // Debugging log
+      console.error('Placement error:', error.response ? error.response.data : error.message);
       Swal.fire({
         title: 'Placement unsuccessful',
         icon: 'error',
         timer: 2500,
-        showConfirmButton: false,
+        showConfirmButton: false
       }).then(() => {
         window.location.reload();
       });
@@ -140,11 +143,17 @@ function Home() {
   };
 
   const handleIncrement = () => {
-    setFormData({ ...formData, quantity: formData.quantity + 1 });
+    setFormData({
+      ...formData,
+      quantity: formData.quantity + 1
+    });
   };
 
   const handleDecrement = () => {
-    setFormData({ ...formData, quantity: Math.max(1, formData.quantity - 1) });
+    setFormData({
+      ...formData,
+      quantity: Math.max(1, formData.quantity - 1)
+    });
   };
 
   const handleLogout = () => {
@@ -158,12 +167,19 @@ function Home() {
     fetchData(newPlanogramId);
   };
 
+  const handleProductSelect = (product) => {
+    setFormData({
+      ...formData,
+      productName: product.name,
+      height: product.height,
+      width: product.breadth
+    });
+    setShowPopup(false);
+  };
+
   const currentPlanogramData = planograms.length > 0 ? planograms[currentPlanogram] : null;
   const filteredLocations = locations.filter(location => location.planogram.planogramId === currentPlanogramData?.planogramId);
   const filteredProducts = products.filter(product => filteredLocations.some(location => location.product.productId === product.productId));
-
-  console.log('Filtered Products:', filteredProducts);
-  console.log('Filtered Locations:', filteredLocations);
 
   return (
     <div>
@@ -181,11 +197,11 @@ function Home() {
       <div className={styles['main-body']}>
         <Form
           formData={formData}
-          handleChange={handleChange}
+          setFormData={setFormData}
           handleSubmit={handleSubmit}
           handleIncrement={handleIncrement}
           handleDecrement={handleDecrement}
-          planogramId={formData.planogramId}
+          openPopup={() => setShowPopup(true)}
         />
         {planograms.length > 0 && (
           <div>
@@ -203,8 +219,8 @@ function Home() {
                 disabled={currentPlanogram === 0}
                 variant="previous"
                 width="150px"
-                buttonColor = '#000000'
-                arrowColor = '#7B7979'
+                buttonColor='#000000'
+                arrowColor='#7B7979'
               />
               <SubmitButton
                 text="Next"
@@ -212,12 +228,18 @@ function Home() {
                 onClick={() => handlePlanogramChange(Math.min(currentPlanogram + 1, planograms.length - 1))}
                 disabled={currentPlanogram === planograms.length - 1}
                 width="150px"
-                buttonColor = '#000000'
-                arrowColor = '#7B7979'
+                buttonColor='#000000'
+                arrowColor='#7B7979'
               />
             </div>
           </div>
         )}
+        <ProductPopup 
+          show={showPopup} 
+          onClose={() => setShowPopup(false)} 
+          onSelect={handleProductSelect}
+          planograms={planograms}
+        />
       </div>
     </div>
   );
