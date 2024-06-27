@@ -4,10 +4,42 @@
   align-items: end;
   gap: 20px;
   justify-content: flex-start;
+  position: relative;
 }
 
-.product-wrapper {
+.form-options { 
+
+  display: flex;
+  flex-direction: row;
+  gap: 10em;
+  top: 0;  
+  right: 0;
+  margin: 1em;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+}
+
+.button-container-top {
+  display: flex;
+  justify-content: flex-start;
   width: 40%;
+ 
+
+}
+.button-container-top button{
+  padding:15px ;
+}
+ 
+.product-wrapper button{
+  padding: 15px;
+}
+
+
+
+.product-wrapper {
+  width: 60%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .form-card {
@@ -26,6 +58,7 @@
 
 .form-field-id label {
   display: block;
+  margin-top: 2em;
   margin-bottom: 7px;
   font-family: 'HelveticaforTarget';
   font-size: 14px;
@@ -151,4 +184,141 @@ input[type=number]::-webkit-inner-spin-button {
 /* Hides the arrows for number inputs in Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 70px;
+  right: 0;
+  margin: 20px;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+}
+
+.edit-button,
+.delete-button {
+  padding: 5px 20px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  background-color: #3366FF;
+  color: white;
+  border: none;
+  
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.edit-button {
+  background-color: #3366FF;
+  margin-right: 10px;
+}
+
+.delete-button {
+  background-color: red;
+}
+
+.form-wrapper {
+  position: relative;
+}
+
+.product-wrapper {
+  width: 40%;
+}
+
+/* .form-field-id-input input .upload-photo-box{
+  /* flex-direction: row; */
+  /* display: inline;
+} */ 
+/* 
+.upload-photo-box {
+  position: relative;
+  /* justify-content: flex-end; */
+  /* margin-left: 20px;
+  margin-top: 10px;
+  width: 70px;
+  height: 70px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+} */
+
+/* .upload-photo-box:hover {
+  border-color: #666;
+}
+
+.upload-photo-content {
+  text-align: center;
+}
+
+.upload-photo-icon {
+  width: 15px;
+  height: 15px;
+  margin-bottom: 5px;
+} */
+
+/* .upload-photo-text {
+  font-size: 12px;
+  color: #666;
+}
+
+.upload-photo-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+} */ 
+.upload-photo-box {
+  position: relative;
+  margin-right: 20px;
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.upload-photo-box:hover {
+  border-color: #666;
+}
+
+.upload-photo-content {
+  text-align: center;
+}
+
+.upload-photo-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 5px;
+}
+
+.upload-photo-text {
+  font-size: 12px;
+  color: #666;
+}
+
+.upload-photo-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+
+
+.form-field-horizontal {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
