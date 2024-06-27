@@ -61,15 +61,6 @@ function Form({
             Delete
           </button>
         </div>
-
-        {/* <div className={styles['upload-photo-box']}>
-          <div className={styles['upload-photo-content']}>
-            <img src='./src/assets/plus.svg' alt='Plus Icon' className={styles['upload-photo-icon']} />
-            <p className={styles['upload-photo-text']}>Upload Photo</p>
-          </div>
-          <input type="file" className={styles['upload-photo-input']} onChange={handleChange} />
-        </div> */}
-
         <form
           onSubmit={handleSubmit}
           className={styles["form-fields"]}
