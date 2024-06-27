@@ -50,12 +50,11 @@
 .form-wrapper {
   display: flex;
   justify-content: flex-end;
-  align-items: end;
+  align-items: center;
   width: 100%;
   padding: 20px;
   margin: 30px;
-  margin-left: 100px;
-  /* border:solid 1px; */
+  /* margin-left: 100px; */
 }
 
 .form-card {
@@ -65,6 +64,7 @@
   border-radius: 8px;
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.1);
   width: 30%;
+  margin-left: 50px;
 }
 
 .horizontal-field-container {

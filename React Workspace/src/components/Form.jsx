@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import styles from "./Form.module.css";
 import SubmitButton from "../components/SubmitButton";
@@ -13,7 +14,6 @@ function Form({
   planogramId,
 }) {
   const [planograms, setPlanograms] = useState([]);
-  const [selectedPlanogram, setSelectedPlanogram] = useState(planogramId);
 
   useEffect(() => {
     const fetchPlanograms = async () => {
@@ -25,7 +25,7 @@ function Form({
       }
     };
     fetchPlanograms();
-  }, []);
+  }, [setFormData]);
 
   const handleDropdownSelect = (option) => {
     const selectedPlanogram = planograms.find(

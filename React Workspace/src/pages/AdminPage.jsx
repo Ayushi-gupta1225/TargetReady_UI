@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axiosConfig';
 import SubmitButton from '../components/SubmitButton';
+import Planogram from '../components/Planogram';
 import styles from './AdminPage.module.css';
 
 const AdminPage = () => {
@@ -16,6 +17,7 @@ const AdminPage = () => {
     const [planograms, setPlanograms] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [locations, setLocations] = useState([]);
+    const [viewMode, setViewMode] = useState('info'); // New state to switch between views
 
     useEffect(() => {
         const fetchPlanograms = async () => {
@@ -99,6 +101,7 @@ const AdminPage = () => {
 
         return ((totalOccupancy / slotCount) * 100).toFixed(2);
     };
+
     return (
         <div className={styles['admin-wrapper']}>
             <div className={styles['navbar-container']}>
@@ -147,7 +150,7 @@ const AdminPage = () => {
                     </form>
                 </div>
                 <div className={styles['planogram-display']}>
-                    {planograms.length > 0 && (
+                    {planograms.length > 0 && viewMode === 'info' && (
                         <div>
                             <div className={styles['planogram-info']}>
                                 <div className={styles['admin-card-title']}>{planograms[currentIndex].name}</div>
@@ -156,8 +159,8 @@ const AdminPage = () => {
                                     <div className={styles['admin-card-content']}>Sections: {planograms[currentIndex].numSections}</div>
                                 </div>
                                 <div className={styles['horizontal-aligning']}>
-                                    <div className={styles['admin-card-content']}>Shelves: {planograms[currentIndex].slotHeight}</div>
-                                    <div className={styles['admin-card-content']}>Sections: {planograms[currentIndex].slotWidth}</div>
+                                    <div className={styles['admin-card-content']}>Slot Height: {planograms[currentIndex].slotHeight}</div>
+                                    <div className={styles['admin-card-content']}>Slot Width: {planograms[currentIndex].slotWidth}</div>
                                 </div>
                                 <div className={styles['horizontal-aligning']}>
                                     <div className={styles['admin-card-content']}>Total Products: {calculateTotalProducts()}</div>
@@ -170,16 +173,24 @@ const AdminPage = () => {
                                         onClick={prevPlanogram}
                                         width="130px"
                                         variant="previous"
-                                        buttonColor = '#000000'
-                                        arrowColor = '#7B7979'
+                                        buttonColor='#000000'
+                                        arrowColor='#7B7979'
+                                    />
+                                    <SubmitButton
+                                        // text="Table"
+                                        icon='./src/assets/table.svg'
+                                        onClick={() => setViewMode('table')}
+                                        width="26px"
+                                        buttonColor='#000000'
+                                        arrowColor='#7B7979'
                                     />
                                     <SubmitButton
                                         text="Next"
                                         icon='./src/assets/arrow-right.svg'
                                         onClick={nextPlanogram}
                                         width="130px"
-                                        buttonColor = '#000000'
-                                        arrowColor = '#7B7979'
+                                        buttonColor='#000000'
+                                        arrowColor='#7B7979'
                                     />
                                 </div>
                                 <div className={styles['delete-button-wrapper']}>
@@ -187,12 +198,28 @@ const AdminPage = () => {
                                         text="Delete Planogram"
                                         icon='src/assets/trash.svg'
                                         onClick={handleDelete}
-                                        buttonColor = '#FF0303'
-                                        arrowColor = '#FF5A5A'
+                                        buttonColor='#FF0303'
+                                        arrowColor='#FF5A5A'
                                     />
                                 </div>
                             </div>
-                            
+                        </div>
+                    )}
+                    {planograms.length > 0 && viewMode === 'table' && (
+                        <div className={styles['table-container']}>
+                            <Planogram
+                                products={locations.map(location => location.product)}
+                                locations={locations}
+                                planogram={planograms[currentIndex]}
+                            />
+                            <SubmitButton
+                                text="Info"
+                                icon='./src/assets/info.svg'
+                                onClick={() => setViewMode('info')}
+                                width="130px"
+                                buttonColor='#000000'
+                                arrowColor='#7B7979'
+                            />
                         </div>
                     )}
                 </div>

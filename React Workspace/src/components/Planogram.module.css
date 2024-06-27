@@ -4,8 +4,10 @@
   align-items: center;
   width: 100%;
   height: 100%;
-  padding: 10px; 
-  box-sizing: border-box; 
+  padding: 10px;
+  box-sizing: border-box;
+  position: relative;  /* Add position relative if not already there */
+  z-index: 1;  /* Ensure z-index is lower than the overlay */
 }
 
 .grid {
@@ -15,13 +17,13 @@
 .slot {
   display: flex;
   justify-content: flex-start;
-  align-items: center; 
+  align-items: center;
   border: solid;
   border-width: 1px;
   border-color: #e3e3e3;
   border-radius: 7px;
   background-color: #f9f9f9;
-  position: relative; 
+  position: relative;
 }
 
 .product-rectangle {
