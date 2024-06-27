@@ -88,34 +88,7 @@ function Form({
               <input type="text" name="productName" value={formData.productName} onChange={handleChange} placeholder='Enter Product Name' required />
             </div>
           </div>
-          {/* <div className={styles["form-field-id"]}>
-            <label>Product Name</label>
-            <div className={styles["form-field-id-input"]}>
-              <input
-                type="text"
-                name="productName"
-                value={formData.productName}
-                onChange={handleChange}
-                placeholder="Enter Product Name"
-                required
-              />
-              <div className={styles["upload-photo-box"]}>
-                <div className={styles["upload-photo-content"]}>
-                  <img
-                    src="./src/assets/plus.svg"
-                    alt="Plus Icon"
-                    className={styles["upload-photo-icon"]}
-                  />
-                  <p className={styles["upload-photo-text"]}>Upload Photo</p>
-                </div>
-                <input
-                  type="file"
-                  className={styles["upload-photo-input"]}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-          </div> */}
+          
           <div className={styles["form-field-dim-container"]}>
             <div className={styles["form-field-dim"]}>
               <label>Height</label>
