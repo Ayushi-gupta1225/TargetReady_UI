@@ -46,7 +46,7 @@ function SignUp() {
               </div>
               <div className={styles['form-field']}>
                 <label>Password</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Enter Password'/>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Enter Password' minlength='8'/>
               </div>
               <SubmitButton
                 text="Register"

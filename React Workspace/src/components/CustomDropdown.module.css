@@ -25,10 +25,11 @@
 
 .dropdown-arrow {
   transition: transform 0.3s ease;
+  transform: rotate(180deg);
 }
 
 .rotate {
-  transform: rotate(180deg);
+  transform: rotate(0deg);
 }
 
 .dropdown-list {
@@ -69,3 +70,5 @@
 .selected {
   background-color: #ebebeb;
 }
+
+

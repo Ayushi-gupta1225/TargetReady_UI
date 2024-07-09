@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../utils/axiosConfig';
-import styles from './Home.module.css';
-import Form from '../components/Form';
-import Planogram from '../components/Planogram';
-import SubmitButton from '../components/SubmitButton';
-import Swal from 'sweetalert2';
-import ProductPopup from '../components/ProductPopup';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosConfig";
+import styles from "./Home.module.css";
+import Form from "../components/Form";
+import Planogram from "../components/Planogram";
+import SubmitButton from "../components/SubmitButton";
+import Swal from "sweetalert2";
+import ProductPopup from "../components/ProductPopup";
 
 function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [locations, setLocations] = useState([]);
   const [formData, setFormData] = useState({
-    productName: '',
-    height: '',
-    width: '',
+    productId: "",
+    productName: "",
+    height: "",
+    width: "",
     quantity: 1,
-    shelf: '',
-    section: '',
-    planogramId: ''
+    shelf: "",
+    section: "",
+    planogramId: "",
   });
   const [planograms, setPlanograms] = useState([]);
   const [currentPlanogram, setCurrentPlanogram] = useState(0);
@@ -28,11 +29,13 @@ function Home() {
   const realLifeWidthCm = 90;
   const [scalingFactorHeight, setScalingFactorHeight] = useState(1);
   const [scalingFactorWidth, setScalingFactorWidth] = useState(1);
+  const [isEdit, setIsEdit] = useState(false);
+  const [clickedProduct, setClickedProduct] = useState(null);
 
   useEffect(() => {
     const fetchPlanograms = async () => {
       try {
-        const response = await axiosInstance.get('/api/planograms');
+        const response = await axiosInstance.get("/api/planograms");
         setPlanograms(response.data);
 
         if (response.data.length > 0) {
@@ -40,7 +43,7 @@ function Home() {
           fetchData(initialPlanogramId);
         }
       } catch (error) {
-        console.error('Error fetching planograms:', error);
+        console.error("Error fetching planograms:", error);
       }
     };
     fetchPlanograms();
@@ -48,11 +51,13 @@ function Home() {
 
   const fetchData = async (planogramId) => {
     try {
-      const response = await axiosInstance.get(`/api/planogram/${planogramId}/data`);
+      const response = await axiosInstance.get(
+        `/api/planogram/${planogramId}/data`
+      );
       setLocations(response.data.locations);
       setProducts(response.data.products);
     } catch (error) {
-      console.error(`Error fetching data for planogram ${planogramId}:`, error);
+      console.error(`Error fetching data from planogram ${planogramId}:`, error);
     }
   };
 
@@ -67,14 +72,6 @@ function Home() {
     }
   }, [planograms]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const productHeightPx = formData.height * scalingFactorHeight;
@@ -82,88 +79,104 @@ function Home() {
     const updatedFormData = {
       ...formData,
       heightPx: productHeightPx,
-      widthPx: productWidthPx
+      widthPx: productWidthPx,
     };
 
     const productData = {
+      productId: formData.productId,
       name: formData.productName,
-      height: formData.height,
-      breadth: formData.width,
+      height: parseInt(formData.height, 10),
+      breadth: parseInt(formData.width, 10),
       quantity: formData.quantity,
       productRow: formData.shelf,
       productSection: formData.section,
-      planogramId: formData.planogramId
+      planogramId: formData.planogramId,
     };
 
     try {
-      const response = await axiosInstance.post(
-        `/api/planogram/${formData.planogramId}/place`,
-        productData,
-        {
-          params: {
-            productRow: parseInt(formData.shelf),
-            productSection: parseInt(formData.section),
-            quantity: formData.quantity
-          }
-        }
-      );
-
-      if (response.status === 200) {
-        setProducts([
-          ...products,
+      let response = null;
+      if (isEdit) {
+        response = await axiosInstance.put(
+          `/api/products/${formData.productId}`,
+          productData
+        );
+      } else {
+        response = await axiosInstance.post(
+          `/api/planogram/${formData.planogramId}/place`,
+          productData,
           {
-            ...productData,
-            quantity: formData.quantity,
-            productRow: formData.shelf,
-            productSection: formData.section,
-            heightPx: productHeightPx,
-            widthPx: productWidthPx
+            params: {
+              productRow: parseInt(formData.shelf),
+              productSection: parseInt(formData.section),
+              quantity: formData.quantity,
+            },
           }
-        ]);
+        );
+      }
+      if (response.status === 200) {
+        const updatedProducts = products.map((product) =>
+          product.productId === formData.productId
+            ? {
+                ...productData,
+                heightPx: productHeightPx,
+                widthPx: productWidthPx,
+              }
+            : product
+        );
+        setProducts(updatedProducts);
         Swal.fire({
-          title: "Placed successfully",
+          title: isEdit ? "Updated successfully" : "Placed successfully",
           icon: "success",
           timer: 2500,
-          showConfirmButton: false
+          showConfirmButton: false,
         }).then(() => {
           window.location.reload();
         });
       }
     } catch (error) {
-      console.error('Placement error:', error.response ? error.response.data : error.message);
+      console.error(
+        "Placement error:",
+        error.response ? error.response.data : error.message
+      );
       Swal.fire({
-        title: 'Placement unsuccessful',
-        icon: 'error',
+        title: isEdit ? "Update unsuccessful" : "Placement unsuccessful",
+        icon: "error",
         timer: 2500,
-        showConfirmButton: false
+        showConfirmButton: false,
       }).then(() => {
         window.location.reload();
       });
+    } finally {
+      setIsEdit(false);
     }
   };
 
   const handleIncrement = () => {
     setFormData({
       ...formData,
-      quantity: formData.quantity + 1
+      quantity: formData.quantity + 1,
     });
   };
 
   const handleDecrement = () => {
     setFormData({
       ...formData,
-      quantity: Math.max(1, formData.quantity - 1)
+      quantity: Math.max(1, formData.quantity - 1),
     });
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   const handlePlanogramChange = (newPlanogramIndex) => {
     setCurrentPlanogram(newPlanogramIndex);
     const newPlanogramId = planograms[newPlanogramIndex].planogramId;
+    setFormData((prevData) => ({
+      ...prevData,
+      planogramId: newPlanogramId,
+    }));
     fetchData(newPlanogramId);
   };
 
@@ -172,29 +185,112 @@ function Home() {
       ...formData,
       productName: product.name,
       height: product.height,
-      width: product.breadth
+      width: product.breadth,
     });
+    setIsEdit(false); // Ensure that the form is in "place product" mode
     setShowPopup(false);
   };
 
-  const currentPlanogramData = planograms.length > 0 ? planograms[currentPlanogram] : null;
-  const filteredLocations = locations.filter(location => location.planogram.planogramId === currentPlanogramData?.planogramId);
-  const filteredProducts = products.filter(product => filteredLocations.some(location => location.product.productId === product.productId));
+  const handleEditProduct = () => {
+    const product = clickedProduct;
+
+    setFormData({
+      productId: product.productId,
+      productName: product.name,
+      height: product.height,
+      width: product.breadth,
+      quantity: product.quantity,
+      planogramId: locations[0].planogram.planogramId,
+      shelf: locations[0].productRow,
+      section: locations[0].productSection,
+    });
+    setIsEdit(true);
+    setClickedProduct(null);
+  };
+
+  const handleDelete = async (product, productRow, productSection, index) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/api/planogram/${planograms[currentPlanogram].planogramId}/product/${product.productId}/slot`,
+        {
+          params: {
+            productRow,
+            productSection,
+            index,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setClickedProduct(null);
+        setIsEdit(false);
+        Swal.fire({
+          title: "Deleted successfully",
+          icon: "success",
+          timer: 2500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.reload();
+        });
+      }
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      Swal.fire({
+        title: "Deletion unsuccessful",
+        icon: "error",
+        timer: 2500,
+        showConfirmButton: false,
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  };
+
+  const handleNewButton = () => {
+    setFormData({
+      productId: "",
+      productName: "",
+      height: "",
+      width: "",
+      quantity: 1,
+      shelf: "",
+      section: "",
+      planogramId: "",
+    });
+    setIsEdit(false); // Ensure that the form is in "place product" mode
+  };
+
+  const currentPlanogramData =
+    planograms.length > 0 ? planograms[currentPlanogram] : null;
+  const filteredLocations = locations.filter(
+    (location) =>
+      location.planogram.planogramId === currentPlanogramData?.planogramId
+  );
+  const filteredProducts = products.filter((product) =>
+    filteredLocations.some(
+      (location) => location.product.productId === product.productId
+    )
+  );
 
   return (
     <div>
-      <div className={styles['navbar-container']}>
-        <div className={styles['left-container']}>
-          <span className={styles['icon-name']}>
-            <img src='./src/assets/Planogram-icon.svg' alt='Icon' className={styles['icon']} />
-            <span className={styles['name']}>Planogram Manager</span>
+      <div className={styles["navbar-container"]}>
+        <div className={styles["left-container"]}>
+          <span className={styles["icon-name"]}>
+            <img
+              src="./src/assets/Planogram-icon.svg"
+              alt="Icon"
+              className={styles["icon"]}
+            />
+            <span className={styles["name"]}>Planogram Manager</span>
           </span>
         </div>
-        <div className={styles['right-container']}>
-          <button className={styles['logout-button']} onClick={handleLogout}>Logout</button>
+        <div className={styles["right-container"]}>
+          <button className={styles["logout-button"]} onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
-      <div className={styles['main-body']}>
+      <div className={styles["main-body"]}>
         <Form
           formData={formData}
           setFormData={setFormData}
@@ -202,41 +298,54 @@ function Home() {
           handleIncrement={handleIncrement}
           handleDecrement={handleDecrement}
           openPopup={() => setShowPopup(true)}
+          isEdit={isEdit} // Pass the isEdit prop
+          resetForm={handleNewButton} // Pass the handleNewButton as resetForm
         />
         {planograms.length > 0 && (
           <div>
-            <div className={styles['planogram-title']}>{currentPlanogramData?.name}</div>
+            <div className={styles["planogram-title"]}>
+              {currentPlanogramData?.name}
+            </div>
             <Planogram
               products={filteredProducts}
               locations={filteredLocations}
               planogram={currentPlanogramData}
+              onProductClick={setClickedProduct}
+              handleEdit={handleEditProduct}
+              handleDelete={handleDelete}
             />
-            <div className={styles['planogram-navigation']}>
+            <div className={styles["planogram-navigation"]}>
               <SubmitButton
                 text="Previous"
-                icon='./src/assets/arrow-left.svg'
-                onClick={() => handlePlanogramChange(Math.max(currentPlanogram - 1, 0))}
+                icon="./src/assets/arrow-left.svg"
+                onClick={() =>
+                  handlePlanogramChange(Math.max(currentPlanogram - 1, 0))
+                }
                 disabled={currentPlanogram === 0}
                 variant="previous"
                 width="150px"
-                buttonColor='#000000'
-                arrowColor='#7B7979'
+                buttonColor="#000000"
+                arrowColor="#7B7979"
               />
               <SubmitButton
                 text="Next"
-                icon='./src/assets/arrow-right.svg'
-                onClick={() => handlePlanogramChange(Math.min(currentPlanogram + 1, planograms.length - 1))}
+                icon="./src/assets/arrow-right.svg"
+                onClick={() =>
+                  handlePlanogramChange(
+                    Math.min(currentPlanogram + 1, planograms.length - 1)
+                  )
+                }
                 disabled={currentPlanogram === planograms.length - 1}
                 width="150px"
-                buttonColor='#000000'
-                arrowColor='#7B7979'
+                buttonColor="#000000"
+                arrowColor="#7B7979"
               />
             </div>
           </div>
         )}
-        <ProductPopup 
-          show={showPopup} 
-          onClose={() => setShowPopup(false)} 
+        <ProductPopup
+          show={showPopup}
+          onClose={() => setShowPopup(false)}
           onSelect={handleProductSelect}
           planograms={planograms}
         />

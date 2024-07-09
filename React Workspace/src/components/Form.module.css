@@ -1,20 +1,34 @@
-/* Form.module.css */
 .form-wrapper {
   display: flex;
   flex-direction: column;
   align-items: end;
   gap: 20px;
   justify-content: flex-start;
+  position: relative;
 }
 
-.product-wrapper {
-  width: 40%;
+.form-options { 
+  display: flex;
+  flex-direction: row;
+  gap: 10em;
+  top: 0;  
+  right: 0;
+  margin: 1em;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+}
+
+.button-container-top {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .form-card {
   background-color: white;
   border: 1px solid #E3E3E3;
-  padding: 32px 30px;
+  padding: 32px 30px 32px 30px;
   border-radius: 8px;
   width: 360px;
   height: auto;
@@ -27,6 +41,7 @@
 
 .form-field-id label {
   display: block;
+  margin-top: 2em;
   margin-bottom: 7px;
   font-family: 'HelveticaforTarget';
   font-size: 14px;
@@ -35,14 +50,14 @@
 
 .form-field-id input {
   padding: 10px;
-  width: 100%;
+  width: 159px;
   height: 32px;
   border: 1px solid #E3E3E3;
   border-radius: 5px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   font-size: 12px;
   font-family: 'HelveticaforTarget';
-  color: #000000;
+  color: #000000; /* Ensures text color is black */
 }
 
 .form-field-dim-container {
@@ -67,7 +82,7 @@
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   font-family: 'HelveticaforTarget';
   font-size: 12px;
-  color: #000000;
+  color: #000000; /* Ensures text color is black */
 }
 
 .form-field-location-container {
@@ -139,15 +154,112 @@
   font-size: 13px;
   display: flex;
   justify-content: center;
-  color: #000000;
+  color: #000000; /* Ensures text color is black */
 }
 
+/* Hides the arrows for number inputs in Chrome, Safari, Edge, and Opera */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
+/* Hides the arrows for number inputs in Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 70px;
+  right: 0;
+  margin: 20px;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+}
+
+.edit-button,
+.delete-button {
+  padding: 3px 15px; /* Decreased padding */
+  font-size: 12px; 
+  font-size: 13px;
+  background-color: #3366FF;
+  color: white;
+  border: none;  
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.edit-button {
+  background-color: #3366FF;
+  margin-right: 10px;
+}
+
+.delete-button {
+  background-color: red;
+}
+
+.form-wrapper {  
+  position: relative;
+}
+
+.upload-photo-box {
+  position: relative;
+  margin-left: 40px;
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.upload-photo-box:hover {
+  border-color: #666;
+}
+
+.upload-photo-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.upload-photo-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 5px;
+  filter: invert(89%) sepia(6%) saturate(106%) hue-rotate(180deg) brightness(96%) contrast(86%);
+}
+
+.upload-photo-text {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.upload-photo-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.uploaded-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.form-field-horizontal {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }

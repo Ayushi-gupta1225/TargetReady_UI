@@ -15,15 +15,19 @@ const AdminPage = () => {
         numSections: '',
     });
     const [planograms, setPlanograms] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [locations, setLocations] = useState([]);
-    const [viewMode, setViewMode] = useState('info'); // New state to switch between views
+    const [viewMode, setViewMode] = useState('info');
+    const [locationsByPlanogram, setLocationsByPlanogram] = useState({});
+    const [currentPlanogram, setCurrentPlanogram] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const fetchPlanograms = async () => {
             try {
                 const response = await axiosInstance.get('/api/planograms');
                 setPlanograms(response.data);
+                response.data.forEach(planogram => {
+                    fetchLocations(planogram.planogramId);
+                });
             } catch (error) {
                 console.error('Error fetching planograms:', error);
             }
@@ -31,28 +35,29 @@ const AdminPage = () => {
         fetchPlanograms();
     }, []);
 
-    useEffect(() => {
-        if (planograms.length > 0) {
-            const fetchPlanogramData = async () => {
-                try {
-                    const response = await axiosInstance.get(`/api/planogram/${planograms[currentIndex].planogramId}/data`);
-                    setLocations(response.data.locations);
-                } catch (error) {
-                    console.error('Error fetching planogram data:', error);
-                }
-            };
-            fetchPlanogramData();
+    const fetchLocations = async (planogramId) => {
+        try {
+            const response = await axiosInstance.get(`/api/planogram/${planogramId}/data`);
+            setLocationsByPlanogram(prevState => ({
+                ...prevState,
+                [planogramId]: response.data.locations
+            }));
+        } catch (error) {
+            console.error(`Error fetching data for planogram ${planogramId}:`, error);
         }
-    }, [planograms, currentIndex]);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setSettings({ ...settings, [name]: value });
     };
 
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Submitting planogram with data: ", settings);
         try {
             const response = await axiosInstance.post('/api/admin/planogram', settings);
             setPlanograms([...planograms, response.data]);
@@ -62,12 +67,15 @@ const AdminPage = () => {
         }
     };
 
-    const handleDelete = async () => {
-        const planogramId = planograms[currentIndex].planogramId;
+    const handleDelete = async (planogramId) => {
         try {
             await axiosInstance.delete(`/api/admin/planogram/${planogramId}`);
-            setPlanograms(planograms.filter((_, index) => index !== currentIndex));
-            setCurrentIndex(0);
+            setPlanograms(planograms.filter(planogram => planogram.planogramId !== planogramId));
+            setLocationsByPlanogram(prevState => {
+                const updatedState = { ...prevState };
+                delete updatedState[planogramId];
+                return updatedState;
+            });
         } catch (error) {
             console.error('Error deleting planogram:', error);
         }
@@ -78,32 +86,34 @@ const AdminPage = () => {
         navigate('/');
     };
 
-    const nextPlanogram = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % planograms.length);
-    };
-
-    const prevPlanogram = () => {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + planograms.length) % planograms.length);
-    };
-
-    const calculateTotalProducts = () => {
+    const calculateTotalProducts = (planogramId) => {
+        const locations = locationsByPlanogram[planogramId] || [];
         return locations.reduce((total, location) => total + location.quantity, 0);
     };
 
-    const calculatePercentageOccupied = () => {
-        const slotWidth = planograms[currentIndex].slotWidth;
-        const slotCount = planograms[currentIndex].numShelves * planograms[currentIndex].numSections;
+    const calculatePercentageOccupied = (planogramId) => {
+        const planogram = planograms.find(p => p.planogramId === planogramId);
+        if (!planogram) return 0;
+
+        const slotWidth = planogram.slotWidth;
+        const slotCount = planogram.numShelves * planogram.numSections;
+        const locations = locationsByPlanogram[planogramId] || [];
         let totalOccupancy = 0;
 
         locations.forEach(location => {
-            totalOccupancy += location.product.breadth * location.quantity / slotWidth;
+            totalOccupancy += (location.product.breadth * location.quantity) / slotWidth;
         });
 
         return ((totalOccupancy / slotCount) * 100).toFixed(2);
     };
 
+    const filteredPlanograms = planograms.filter(planogram =>
+        planogram.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className={styles['admin-wrapper']}>
+            {/* Navbar */}
             <div className={styles['navbar-container']}>
                 <div className={styles['left-container']}>
                     <span className={styles['icon-name']}>
@@ -111,13 +121,25 @@ const AdminPage = () => {
                         <span className={styles['name']}>Planogram Manager</span>
                     </span>
                 </div>
-                <div className={styles['right-container']}>
-                    <button className={styles['logout-button']} onClick={handleLogout}>Logout</button>
+                <div className={styles['left-wrapper']}>
+                    {/* Search bar */}
+                    <div className={styles['center-container']}>
+                        <input
+                            type="text"
+                            className={styles['search-bar']}
+                            placeholder="Search Planograms"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
+                    <div className={styles['right-container']}>
+                        <button className={styles['logout-button']} onClick={handleLogout}>Logout</button>
+                    </div>
                 </div>
             </div>
-            <div className={styles['form-wrapper']}>
+            <div className={styles['main-container']}>
                 <div className={styles['form-card']}>
-                    <form onSubmit={handleSubmit} className={styles['form-fields']}>
+                    <form onSubmit={handleSubmit} className={styles['form-fields']} autoComplete="off">
                         <div className={styles['form-field']}>
                             <label>Name</label>
                             <input type="text" name="name" value={settings.name} onChange={handleChange} placeholder='Enter Planogram Name' required />
@@ -149,80 +171,68 @@ const AdminPage = () => {
                         />
                     </form>
                 </div>
-                <div className={styles['planogram-display']}>
-                    {planograms.length > 0 && viewMode === 'info' && (
-                        <div>
-                            <div className={styles['planogram-info']}>
-                                <div className={styles['admin-card-title']}>{planograms[currentIndex].name}</div>
+                {viewMode === 'info' && (
+                    <div className={styles['planogram-grid']}>
+                        {filteredPlanograms.map((planogram) => (
+                            <div key={planogram.planogramId} className={styles['planogram-card']}>
+                                <div className={styles['admin-card-title']}>{planogram.name}</div>
                                 <div className={styles['horizontal-aligning']}>
-                                    <div className={styles['admin-card-content']}>Shelves: {planograms[currentIndex].numShelves}</div>
-                                    <div className={styles['admin-card-content']}>Sections: {planograms[currentIndex].numSections}</div>
-                                </div>
-                                <div className={styles['horizontal-aligning']}>
-                                    <div className={styles['admin-card-content']}>Slot Height: {planograms[currentIndex].slotHeight}</div>
-                                    <div className={styles['admin-card-content']}>Slot Width: {planograms[currentIndex].slotWidth}</div>
+                                    <div className={styles['admin-card-content']}>Shelves: {planogram.numShelves}</div>
+                                    <div className={styles['admin-card-content']}>Sections: {planogram.numSections}</div>
                                 </div>
                                 <div className={styles['horizontal-aligning']}>
-                                    <div className={styles['admin-card-content']}>Total Products: {calculateTotalProducts()}</div>
-                                    <div className={styles['admin-card-content']}>% Occupied: {calculatePercentageOccupied()}%</div>
+                                    <div className={styles['admin-card-content']}>Slot Height: {planogram.slotHeight}</div>
+                                    <div className={styles['admin-card-content']}>Slot Width: {planogram.slotWidth}</div>
                                 </div>
-                                <div className={styles['navigation-buttons']}>
-                                    <SubmitButton
-                                        text="Previous"
-                                        icon='./src/assets/arrow-left.svg'
-                                        onClick={prevPlanogram}
-                                        width="130px"
-                                        variant="previous"
-                                        buttonColor='#000000'
-                                        arrowColor='#7B7979'
-                                    />
-                                    <SubmitButton
-                                        // text="Table"
-                                        icon='./src/assets/table.svg'
-                                        onClick={() => setViewMode('table')}
-                                        width="26px"
-                                        buttonColor='#000000'
-                                        arrowColor='#7B7979'
-                                    />
-                                    <SubmitButton
-                                        text="Next"
-                                        icon='./src/assets/arrow-right.svg'
-                                        onClick={nextPlanogram}
-                                        width="130px"
-                                        buttonColor='#000000'
-                                        arrowColor='#7B7979'
-                                    />
+                                <div className={styles['horizontal-aligning']}>
+                                    <div className={styles['admin-card-content']}>Total Products: {calculateTotalProducts(planogram.planogramId)}</div>
+                                    <div className={styles['admin-card-content']}>% Occupied: {calculatePercentageOccupied(planogram.planogramId)}%</div>
                                 </div>
-                                <div className={styles['delete-button-wrapper']}>
+                                <div className={styles['button-container']}>
+                                    <div className={styles['left-button-wrapper']}>
+                                        <SubmitButton
+                                            text="View"
+                                            icon='./src/assets/table.svg'
+                                            onClick={() => {
+                                                setCurrentPlanogram(planogram);
+                                                setViewMode('table');
+                                            }}
+                                            width="220px"
+                                            buttonColor='#000000'
+                                            arrowColor='#7B7979'
+                                        />
+                                    </div>
                                     <SubmitButton
-                                        text="Delete Planogram"
                                         icon='src/assets/trash.svg'
-                                        onClick={handleDelete}
+                                        onClick={() => handleDelete(planogram.planogramId)}
+                                        width="26px"
                                         buttonColor='#FF0303'
-                                        arrowColor='#FF5A5A'
+                                        arrowColor='#FF0303'
                                     />
                                 </div>
+
                             </div>
-                        </div>
-                    )}
-                    {planograms.length > 0 && viewMode === 'table' && (
-                        <div className={styles['table-container']}>
-                            <Planogram
-                                products={locations.map(location => location.product)}
-                                locations={locations}
-                                planogram={planograms[currentIndex]}
-                            />
-                            <SubmitButton
-                                text="Info"
-                                icon='./src/assets/info.svg'
-                                onClick={() => setViewMode('info')}
-                                width="130px"
-                                buttonColor='#000000'
-                                arrowColor='#7B7979'
-                            />
-                        </div>
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
+                {currentPlanogram && viewMode === 'table' && (
+                    <div className={styles['table-container']}>
+                        <Planogram
+                            products={locationsByPlanogram[currentPlanogram.planogramId]?.map(location => location.product) || []}
+                            locations={locationsByPlanogram[currentPlanogram.planogramId] || []}
+                            planogram={currentPlanogram}
+                            disablePopup // Pass the new prop to disable the popup
+                        />
+                        <SubmitButton
+                            text="Info"
+                            icon='./src/assets/info.svg'
+                            onClick={() => setViewMode('info')}
+                            width="130px"
+                            buttonColor='#000000'
+                            arrowColor='#7B7979'
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );
