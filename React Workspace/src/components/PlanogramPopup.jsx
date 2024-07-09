@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styles from './PlanogramPopup.module.css';
-import SubmitButton from './SubmitButton'; // Import your custom button
+import SubmitButton from './SubmitButton'; 
 
 const PlanogramPopup = ({ product, onClose, onDelete, onEdit }) => {
   const popupRef = useRef(null);

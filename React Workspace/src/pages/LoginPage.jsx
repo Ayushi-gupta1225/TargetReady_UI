@@ -15,6 +15,7 @@ const LoginPage = () => {
       if (response.status === 200) {
         const token = response.data.jwtToken;
         localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', response.data.refreshToken); // If you are using refresh tokens
         const decodedToken = JSON.parse(atob(token.split('.')[1].replace(/_/g, '/').replace(/-/g, '+')));
         const role = decodedToken.role; 
         if (role === 'ROLE_ADMIN') {

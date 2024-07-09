@@ -5,7 +5,7 @@
   background-color: #053CE1;
   color: white;
   font-size: 11px;
-  padding: 8.5px auto;
+  padding: auto;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -24,7 +24,7 @@
 }
 
 .box-arrow {
-  margin-right: 2px;
+  margin-right: 2.5px;
   margin-left: 2px;
   height: 26px;
   width: 22px;

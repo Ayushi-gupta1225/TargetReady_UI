@@ -1,9 +1,19 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Planogram.module.css';
 import PlanogramPopup from './PlanogramPopup';
 
-const Planogram = ({ products, locations, planogram, handleEdit, handleDelete, onProductClick, disablePopup }) => {
+const Planogram = ({
+  products,
+  locations,
+  planogram,
+  handleEdit,
+  handleDelete,
+  onProductClick,
+  disablePopup,
+  userId,
+  showUserProductsOnly,
+}) => {
   const [maxDimensions, setMaxDimensions] = useState({
     width: 0,
     height: 0,
@@ -50,7 +60,7 @@ const Planogram = ({ products, locations, planogram, handleEdit, handleDelete, o
   const gridTemplate = Array(planogram.numShelves * planogram.numSections).fill(null);
 
   const handleOpenPopup = (product, rowIndex, colIndex, productIndex, e) => {
-    if (disablePopup) return; // Do not open the popup if disablePopup is true
+    if (disablePopup || product.user.userId !== userId) return; 
 
     setSelectedProduct(product);
     setSelectedRowIndex(rowIndex);
@@ -79,8 +89,54 @@ const Planogram = ({ products, locations, planogram, handleEdit, handleDelete, o
     });
   };
 
+  const renderSlotProducts = (slotProducts, rowIndex, colIndex) => {
+    return slotProducts.map((location, i) => {
+      const product = products.find((p) => p.productId === location.product.productId);
+      if (!product) return null;
+
+      const productDimensions = {
+        heightPx: (product.height / planogram.slotHeight) * slotHeightPx,
+        widthPx: (product.breadth / planogram.slotWidth) * slotWidthPx,
+      };
+
+      return Array.from({ length: location.quantity }).map((_, j) => {
+        const isCurrentUserProduct = location.user.userId === userId;
+        const shouldRenderProduct = !showUserProductsOnly || (showUserProductsOnly && isCurrentUserProduct);
+
+        return shouldRenderProduct ? (
+          <div
+            key={`${location.locationId}-${i}-${j}`}
+            className={styles['product-rectangle']}
+            style={{
+              width: `${productDimensions.widthPx}px`,
+              height: `${productDimensions.heightPx}px`,
+              borderRadius: '4px',
+              alignSelf: 'flex-end',
+              cursor: 'pointer',
+              backgroundColor: isCurrentUserProduct ? '#05AC33' : '#BABABA',
+            }}
+            onClick={(e) => handleOpenPopup(product, rowIndex, colIndex, location.index, e)}
+          />
+        ) : (
+          <div
+            key={`${location.locationId}-${i}-${j}`}
+            className={styles['empty-rectangle']}
+            style={{
+              width: `${productDimensions.widthPx}px`,
+              height: `${productDimensions.heightPx}px`,
+              backgroundColor: 'transparent',
+            }}
+          />
+        );
+      });
+    });
+  };
+
   return (
-    <div ref={parentRef} style={{ height: 'calc(100vh - 250px)', width: 'calc(100vw - 600px)', padding: '20px', boxSizing: 'border-box', overflow: 'hidden' }}>
+    <div
+      ref={parentRef}
+      style={{ height: 'calc(100vh - 250px)', width: 'calc(100vw - 600px)', padding: '20px', boxSizing: 'border-box', overflow: 'hidden' }}
+    >
       <div className={styles['planogram-wrapper']} style={{ padding: '10px' }}>
         <div
           className={styles['grid']}
@@ -94,43 +150,13 @@ const Planogram = ({ products, locations, planogram, handleEdit, handleDelete, o
           {gridTemplate.map((_, index) => {
             const rowIndex = Math.floor(index / planogram.numSections) + 1;
             const colIndex = (index % planogram.numSections) + 1;
-            const locationProducts = locations
-              .filter(l => l.productRow === rowIndex && l.productSection === colIndex && l.planogram.planogramId === planogram.planogramId)
-              .map(location => {
-                const product = products.find(p => p.productId === location.product.productId);
-                return {
-                  ...product,
-                  heightPx: (product.height / planogram.slotHeight) * slotHeightPx,
-                  widthPx: (product.breadth / planogram.slotWidth) * slotWidthPx,
-                  quantity: location.quantity || 1,
-                  index: location.index,
-                  productRow: location.productRow,
-                  productSection: location.productSection,
-                };
-              });
+            const slotProducts = locations.filter(
+              (l) => l.productRow === rowIndex && l.productSection === colIndex && l.planogram.planogramId === planogram.planogramId
+            );
 
             return (
-              <div key={index} className={styles['slot']} style={{ height: `${slotHeightPx}px`, width: `${slotWidthPx}px` }}>
-                {locationProducts.length > 0 ? (
-                  locationProducts.map((product, i) =>
-                    Array.from({ length: product.quantity }).map((_, j) => (
-                      <div
-                        key={`${i}-${j}`}
-                        className={styles['product-rectangle']}
-                        style={{
-                          width: `${product.widthPx}px`,
-                          height: `${product.heightPx}px`,
-                          borderRadius: '4px',
-                          alignSelf: 'flex-end',
-                          cursor: 'pointer',
-                        }}
-                        onClick={(e) => handleOpenPopup(product, rowIndex, colIndex, product.index, e)}
-                      />
-                    ))
-                  )
-                ) : (
-                  <p className={styles['empty-slot']}>Empty Slot</p>
-                )}
+              <div key={index} className={styles['slot']} style={{ height: `${slotHeightPx}px`, width: `${slotWidthPx}px`, display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
+                {renderSlotProducts(slotProducts, rowIndex, colIndex)}
               </div>
             );
           })}
@@ -164,6 +190,7 @@ Planogram.propTypes = {
       heightPx: PropTypes.number,
       widthPx: PropTypes.number,
       quantity: PropTypes.number.isRequired,
+      userId: PropTypes.number.isRequired,
     })
   ).isRequired,
   locations: PropTypes.arrayOf(
@@ -179,6 +206,9 @@ Planogram.propTypes = {
         planogramId: PropTypes.number.isRequired,
       }).isRequired,
       index: PropTypes.number.isRequired,
+      user: PropTypes.shape({
+        userId: PropTypes.number.isRequired,
+      }).isRequired,
     })
   ).isRequired,
   planogram: PropTypes.shape({
@@ -192,11 +222,14 @@ Planogram.propTypes = {
   handleDelete: PropTypes.func.isRequired,
   handleEdit: PropTypes.func.isRequired,
   onProductClick: PropTypes.func.isRequired,
-  disablePopup: PropTypes.bool, // Add the prop type for disablePopup
+  disablePopup: PropTypes.bool,
+  userId: PropTypes.number.isRequired,
+  showUserProductsOnly: PropTypes.bool.isRequired,
 };
 
 Planogram.defaultProps = {
-  disablePopup: false, // Default value for disablePopup
+  disablePopup: false,
+  showUserProductsOnly: false,
 };
 
 export default Planogram;

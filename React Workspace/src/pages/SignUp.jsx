@@ -17,7 +17,7 @@ function SignUp() {
       });
       if (response.status === 200) {
         alert('Registration successful!');
-        navigate('/'); // Redirect to Login page after successful registration
+        navigate('/'); 
       }
     } catch (error) {
       console.error('Error registering user:', error.response?.data);

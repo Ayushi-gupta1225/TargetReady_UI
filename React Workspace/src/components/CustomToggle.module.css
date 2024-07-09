@@ -1,0 +1,52 @@
+.toggle-container {
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 170px;
+    height: 36px;
+    border-radius: 20px;
+    background-color: #d3d3d3;
+    position: relative;
+    border: solid;
+    border-width: 2px;
+  }
+
+   
+  .toggle.all .toggle-button {
+    margin: 2px;
+    left: 0px;
+    background-color: black;
+    color: white;
+    width: 100px;
+    text-align: center;
+    border-radius: 20px;
+    font-family: 'HelveticaforTarget';
+    font-weight: bold;
+    font-size: 12px;
+    padding: 5px;
+}
+
+.toggle.vendor .toggle-button {
+    margin: 2px;
+    right: 0px;
+    background-color: black;
+    color: white;
+    width: 100px;
+    text-align: center;
+    border-radius: 20px;
+    font-family: 'HelveticaforTarget';
+    font-weight: bold;
+    font-size: 12px;
+    padding: 5px;
+  }
+  
+  .toggle-button {
+    position: absolute;
+    transition: all 0.3s ease;
+  }
+  

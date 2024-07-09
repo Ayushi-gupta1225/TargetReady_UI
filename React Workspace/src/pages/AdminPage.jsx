@@ -113,7 +113,6 @@ const AdminPage = () => {
 
     return (
         <div className={styles['admin-wrapper']}>
-            {/* Navbar */}
             <div className={styles['navbar-container']}>
                 <div className={styles['left-container']}>
                     <span className={styles['icon-name']}>
@@ -122,7 +121,6 @@ const AdminPage = () => {
                     </span>
                 </div>
                 <div className={styles['left-wrapper']}>
-                    {/* Search bar */}
                     <div className={styles['center-container']}>
                         <input
                             type="text"
@@ -221,7 +219,7 @@ const AdminPage = () => {
                             products={locationsByPlanogram[currentPlanogram.planogramId]?.map(location => location.product) || []}
                             locations={locationsByPlanogram[currentPlanogram.planogramId] || []}
                             planogram={currentPlanogram}
-                            disablePopup // Pass the new prop to disable the popup
+                            disablePopup 
                         />
                         <SubmitButton
                             text="Info"

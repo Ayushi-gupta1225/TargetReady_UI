@@ -1,20 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './ProductPopup.module.css';
 import axiosInstance from '../utils/axiosConfig';
 import SubmitButton from './SubmitButton';
 
-const ProductPopup = ({ show, onClose, onSelect, planograms }) => {
+const ProductPopup = ({ show, onClose, onSelect, planograms, userId }) => {
   const [products, setProducts] = useState([]);
   const [currentPlanogramIndex, setCurrentPlanogramIndex] = useState(0);
   const popupRef = useRef(null);
 
-  // Fetch products when the component is first shown or when the currentPlanogramIndex changes
   useEffect(() => {
     if (show) {
       const fetchProductsByPlanogram = async (planogramId) => {
         try {
           const response = await axiosInstance.get(`/api/planogram/${planogramId}/products`);
-          setProducts(response.data);
+          // Filter products by userId
+          const userProducts = response.data.filter(product => product.user.userId === userId);
+          setProducts(userProducts);
         } catch (error) {
           console.error('Error fetching products by planogram:', error);
         }
@@ -22,9 +23,8 @@ const ProductPopup = ({ show, onClose, onSelect, planograms }) => {
 
       fetchProductsByPlanogram(planograms[currentPlanogramIndex].planogramId);
     }
-  }, [show, currentPlanogramIndex, planograms]);
+  }, [show, currentPlanogramIndex, planograms, userId]);
 
-  // Handle clicks outside the popup to close it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {

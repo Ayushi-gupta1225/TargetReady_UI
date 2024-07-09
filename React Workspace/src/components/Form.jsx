@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './Form.module.css';
 import SubmitButton from './SubmitButton';
 import CustomDropdown from './CustomDropdown';

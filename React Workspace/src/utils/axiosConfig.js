@@ -11,14 +11,14 @@ const axiosInstance = axios.create({
 const refreshToken = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
-    const response = await axios.post('http://localhost:2000/api/auth/refresh', { refreshToken });
+    const response = await axios.post('http://localhost:2000/auth/refresh', { refreshToken });
     const { token } = response.data;
     localStorage.setItem('token', token);
     return token;
   } catch (error) {
     console.error('Error refreshing token:', error);
     // If refresh fails, redirect to login
-    window.location.href = '/login';
+    window.location.href = '/';
     return null;
   }
 };
@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const newToken = await refreshToken();
       if (newToken) {

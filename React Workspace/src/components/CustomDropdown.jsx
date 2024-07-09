@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './CustomDropdown.module.css';
 
 const CustomDropdown = ({ options, selectedOption, onOptionSelect, disabled, width }) => {

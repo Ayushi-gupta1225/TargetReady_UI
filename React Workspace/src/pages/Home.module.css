@@ -1,9 +1,16 @@
-.planogram-title{
+.planogram-title {
     display: flex;
     justify-content: center;
+    align-items: center;
     font-weight: bold;
     font-family: 'HelveticaforTarget';
     font-size: 25px;
+    position: relative;
+}
+
+.toggle-wrapper {
+    position: absolute;
+    left: 0;
 }
 
 .planogram-navigation {

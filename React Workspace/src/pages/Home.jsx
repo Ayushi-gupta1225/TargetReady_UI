@@ -7,6 +7,7 @@ import Planogram from "../components/Planogram";
 import SubmitButton from "../components/SubmitButton";
 import Swal from "sweetalert2";
 import ProductPopup from "../components/ProductPopup";
+import CustomToggle from "../components/CustomToggle"; 
 
 function Home() {
   const navigate = useNavigate();
@@ -25,12 +26,10 @@ function Home() {
   const [planograms, setPlanograms] = useState([]);
   const [currentPlanogram, setCurrentPlanogram] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
-  const realLifeHeightCm = 45;
-  const realLifeWidthCm = 90;
-  const [scalingFactorHeight, setScalingFactorHeight] = useState(1);
-  const [scalingFactorWidth, setScalingFactorWidth] = useState(1);
   const [isEdit, setIsEdit] = useState(false);
   const [clickedProduct, setClickedProduct] = useState(null);
+  const [isVendorView, setIsVendorView] = useState(false);
+  const [userId, setUserId] = useState(null); 
 
   useEffect(() => {
     const fetchPlanograms = async () => {
@@ -46,7 +45,18 @@ function Home() {
         console.error("Error fetching planograms:", error);
       }
     };
+
+    const fetchUserId = async () => {
+      try {
+        const response = await axiosInstance.get("/auth/user");
+        setUserId(response.data.userId);
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+      }
+    };
+
     fetchPlanograms();
+    fetchUserId();
   }, []);
 
   const fetchData = async (planogramId) => {
@@ -61,26 +71,10 @@ function Home() {
     }
   };
 
-  useEffect(() => {
-    const firstSlot = document.querySelector(`.${styles.slot}`);
-    if (firstSlot) {
-      const slotStyles = window.getComputedStyle(firstSlot);
-      const slotHeightPx = parseFloat(slotStyles.height);
-      const slotWidthPx = parseFloat(slotStyles.width);
-      setScalingFactorHeight(slotHeightPx / realLifeHeightCm);
-      setScalingFactorWidth(slotWidthPx / realLifeWidthCm);
-    }
-  }, [planograms]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const productHeightPx = formData.height * scalingFactorHeight;
-    const productWidthPx = formData.width * scalingFactorWidth;
-    const updatedFormData = {
-      ...formData,
-      heightPx: productHeightPx,
-      widthPx: productWidthPx,
-    };
+    const productHeightPx = formData.height * 1;
+    const productWidthPx = formData.width * 1;
 
     const productData = {
       productId: formData.productId,
@@ -109,6 +103,7 @@ function Home() {
               productRow: parseInt(formData.shelf),
               productSection: parseInt(formData.section),
               quantity: formData.quantity,
+              userId: userId,
             },
           }
         );
@@ -187,7 +182,7 @@ function Home() {
       height: product.height,
       width: product.breadth,
     });
-    setIsEdit(false); // Ensure that the form is in "place product" mode
+    setIsEdit(false); 
     setShowPopup(false);
   };
 
@@ -256,20 +251,15 @@ function Home() {
       section: "",
       planogramId: "",
     });
-    setIsEdit(false); // Ensure that the form is in "place product" mode
+    setIsEdit(false); 
+  };
+
+  const handleToggleChange = () => {
+    setIsVendorView(!isVendorView);
   };
 
   const currentPlanogramData =
     planograms.length > 0 ? planograms[currentPlanogram] : null;
-  const filteredLocations = locations.filter(
-    (location) =>
-      location.planogram.planogramId === currentPlanogramData?.planogramId
-  );
-  const filteredProducts = products.filter((product) =>
-    filteredLocations.some(
-      (location) => location.product.productId === product.productId
-    )
-  );
 
   return (
     <div>
@@ -298,21 +288,30 @@ function Home() {
           handleIncrement={handleIncrement}
           handleDecrement={handleDecrement}
           openPopup={() => setShowPopup(true)}
-          isEdit={isEdit} // Pass the isEdit prop
-          resetForm={handleNewButton} // Pass the handleNewButton as resetForm
+          isEdit={isEdit} 
+          resetForm={handleNewButton} 
         />
         {planograms.length > 0 && (
           <div>
             <div className={styles["planogram-title"]}>
+              <div className={styles["toggle-wrapper"]}>
+                <CustomToggle
+                    isVendorView={isVendorView}
+                    onToggle={handleToggleChange}
+                />
+              </div>
               {currentPlanogramData?.name}
             </div>
+            
             <Planogram
-              products={filteredProducts}
-              locations={filteredLocations}
+              products={products}
+              locations={locations}
               planogram={currentPlanogramData}
               onProductClick={setClickedProduct}
               handleEdit={handleEditProduct}
               handleDelete={handleDelete}
+              userId={userId} 
+              showUserProductsOnly={isVendorView}
             />
             <div className={styles["planogram-navigation"]}>
               <SubmitButton
@@ -348,6 +347,7 @@ function Home() {
           onClose={() => setShowPopup(false)}
           onSelect={handleProductSelect}
           planograms={planograms}
+          userId={userId} 
         />
       </div>
     </div>
