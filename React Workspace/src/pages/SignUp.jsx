@@ -11,7 +11,7 @@ function SignUp() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post('http://localhost:2000/auth/create-user', {
+      const response = await axios.post('http://localhost:2001/auth/create-user', {
         userName: username,
         password: password
       });

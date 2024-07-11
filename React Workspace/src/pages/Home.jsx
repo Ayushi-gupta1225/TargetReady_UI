@@ -204,39 +204,50 @@ function Home() {
   };
 
   const handleDelete = async (product, productRow, productSection, index) => {
-    try {
-      const response = await axiosInstance.delete(
-        `/api/planogram/${planograms[currentPlanogram].planogramId}/product/${product.productId}/slot`,
-        {
-          params: {
-            productRow,
-            productSection,
-            index,
-          },
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this product?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, keep it",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await axiosInstance.delete(
+          `/api/planogram/${planograms[currentPlanogram].planogramId}/product/${product.productId}/slot`,
+          {
+            params: {
+              productRow,
+              productSection,
+              index,
+            },
+          }
+        );
+        if (response.status === 200) {
+          setClickedProduct(null);
+          setIsEdit(false);
+          Swal.fire({
+            title: "Deleted successfully",
+            icon: "success",
+            timer: 2500,
+            showConfirmButton: false,
+          }).then(() => {
+            window.location.reload();
+          });
         }
-      );
-      if (response.status === 200) {
-        setClickedProduct(null);
-        setIsEdit(false);
+      } catch (error) {
+        console.error("Failed to delete product:", error);
         Swal.fire({
-          title: "Deleted successfully",
-          icon: "success",
+          title: "Deletion unsuccessful",
+          icon: "error",
           timer: 2500,
           showConfirmButton: false,
         }).then(() => {
           window.location.reload();
         });
       }
-    } catch (error) {
-      console.error("Failed to delete product:", error);
-      Swal.fire({
-        title: "Deletion unsuccessful",
-        icon: "error",
-        timer: 2500,
-        showConfirmButton: false,
-      }).then(() => {
-        window.location.reload();
-      });
     }
   };
 

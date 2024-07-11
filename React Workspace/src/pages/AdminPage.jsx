@@ -4,6 +4,7 @@ import axiosInstance from '../utils/axiosConfig';
 import SubmitButton from '../components/SubmitButton';
 import Planogram from '../components/Planogram';
 import styles from './AdminPage.module.css';
+import Swal from 'sweetalert2';
 
 const AdminPage = () => {
     const navigate = useNavigate();
@@ -67,18 +68,40 @@ const AdminPage = () => {
         }
     };
 
-    const handleDelete = async (planogramId) => {
-        try {
-            await axiosInstance.delete(`/api/admin/planogram/${planogramId}`);
-            setPlanograms(planograms.filter(planogram => planogram.planogramId !== planogramId));
-            setLocationsByPlanogram(prevState => {
-                const updatedState = { ...prevState };
-                delete updatedState[planogramId];
-                return updatedState;
-            });
-        } catch (error) {
-            console.error('Error deleting planogram:', error);
-        }
+    const handleDelete = (planogramId) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await axiosInstance.delete(`/api/admin/planogram/${planogramId}`);
+                    setPlanograms(planograms.filter(planogram => planogram.planogramId !== planogramId));
+                    setLocationsByPlanogram(prevState => {
+                        const updatedState = { ...prevState };
+                        delete updatedState[planogramId];
+                        return updatedState;
+                    });
+                    Swal.fire(
+                        'Deleted!',
+                        'Your planogram has been deleted.',
+                        'success'
+                    );
+                } catch (error) {
+                    console.error('Error deleting planogram:', error);
+                    Swal.fire(
+                        'Error!',
+                        'There was a problem deleting the planogram.',
+                        'error'
+                    );
+                }
+            }
+        });
     };
 
     const handleLogout = () => {
