@@ -13,6 +13,7 @@ const ProductPopup = ({ show, onClose, onSelect, planograms }) => {
     if (show) {
       const fetchProductsByPlanogram = async (planogramId) => {
         try {
+          on
           const response = await axiosInstance.get(`/api/planogram/${planogramId}/products`);
           setProducts(response.data);
         } catch (error) {

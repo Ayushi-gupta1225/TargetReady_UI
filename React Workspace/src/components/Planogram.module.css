@@ -40,11 +40,13 @@
 }
 
 .tooltip {
+  
   position: absolute;
   background-color: #FFF;
   border: 1px solid #E3E3E3;
   border-radius: 5px;
-  padding: 10px;
+  flex-direction: column;
+  padding: 50px;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
   pointer-events: none; /* Makes sure the tooltip doesn't interfere with hover events */
   z-index: 1000;
@@ -55,4 +57,43 @@
   margin: 5px 0;
   font-size: 12px;
   color: #333;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  padding-left: 20px;
+  position: absolute;
+  top: 70px;
+  left: 20px;
+  right: 0;
+  margin: 15px;
+  font-family: 'HelveticaforTarget';
+  font-weight: bold;
+  margin-top: 100px;
+  justify-content: flex-end;
+  
+  
+}
+
+.edit-button,
+.delete-button {
+  padding: 3px 15px; /* Decreased padding */
+  font-size: 12px; 
+  font-size: 13px;
+  background-color: #3366FF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.edit-button {
+  background-color: #3366FF;
+  margin-right: 10px;
+}
+
+.delete-button {
+  background-color: red;
+  cursor: pointer;
 }

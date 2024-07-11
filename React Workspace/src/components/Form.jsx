@@ -1,17 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import styles from "./Form.module.css";
-import SubmitButton from "../components/SubmitButton";
-import CustomDropdown from "../components/CustomDropdown";
+import SubmitButton from "./SubmitButton";
+import CustomDropdown from "./CustomDropdown";
 import axiosInstance from "../utils/axiosConfig";
 
 function Form({
   formData,
-  handleChange,
+  setFormData,
   handleSubmit,
   handleIncrement,
   handleDecrement,
-  planogramId,
+  openPopup,
 }) {
   const [planograms, setPlanograms] = useState([]);
 
@@ -19,7 +18,14 @@ function Form({
     const fetchPlanograms = async () => {
       try {
         const response = await axiosInstance.get("/api/planograms");
-        setPlanograms(response.data);
+        const planogramData = response.data;
+        setPlanograms(planogramData);
+        if (planogramData.length > 0) {
+          setFormData((prevData) => ({
+            ...prevData,
+            planogramId: planogramData[0].planogramId,
+          }));
+        }
       } catch (error) {
         console.error("Error fetching planograms:", error);
       }
@@ -31,55 +37,43 @@ function Form({
     const selectedPlanogram = planograms.find(
       (planogram) => planogram.name === option
     );
-    setSelectedPlanogram(
-      selectedPlanogram ? selectedPlanogram.planogramId : ""
-    );
-    handleChange({
-      target: {
-        name: "planogramId",
-        value: selectedPlanogram ? selectedPlanogram.planogramId : "",
-      },
-    });
+    if (selectedPlanogram) {
+      setFormData((prevData) => ({
+        ...prevData,
+        planogramId: selectedPlanogram.planogramId,
+      }));
+    }
   };
 
   return (
     <div className={styles["form-wrapper"]}>
-      <div className={styles["form-options"]}>
-        <div className={styles["button-container-top"]}>
-          <SubmitButton text="Add" icon="./src/assets/plus.svg" animate />
-        </div>
-        <div className={styles["product-wrapper"]}>
-          <SubmitButton text="Products" icon="./src/assets/plus.svg" animate />
-        </div>
+      <div className={styles["product-wrapper"]}>
+        <SubmitButton
+          text="Products"
+          icon="./src/assets/plus.svg"
+          animate
+          onClick={openPopup}
+        />
       </div>
       <div className={styles["form-card"]}>
-        <div className={styles["button-container"]}>
-          <button type="button" className={styles["edit-button"]}>
-            Edit
-          </button>
-          <button type="button" className={styles["delete-button"]}>
-            Delete
-          </button>
-        </div>
         <form
           onSubmit={handleSubmit}
           className={styles["form-fields"]}
           autoComplete="off"
         >
-           <div className={styles['form-field-horizontal']}>
-            <div className={styles['upload-photo-box']}>
-              <div className={styles['upload-photo-content']}>
-                <img src='./src/assets/plus.svg' alt='Plus Icon' className={styles['upload-photo-icon']} />
-                <p className={styles['upload-photo-text']}>Upload Photo</p>
-              </div>
-              <input type="file" className={styles['upload-photo-input']} onChange={handleChange} />
-            </div>
-            <div className={styles['form-field-id']}>
-              <label>Product Name</label>
-              <input type="text" name="productName" value={formData.productName} onChange={handleChange} placeholder='Enter Product Name' required />
-            </div>
+          <div className={styles["form-field-id"]}>
+            <label>Product Name</label>
+            <input
+              type="text"
+              name="productName"
+              value={formData.productName}
+              onChange={(e) =>
+                setFormData({ ...formData, productName: e.target.value })
+              }
+              placeholder="Enter Product Name"
+              required
+            />
           </div>
-          
           <div className={styles["form-field-dim-container"]}>
             <div className={styles["form-field-dim"]}>
               <label>Height</label>
@@ -87,7 +81,9 @@ function Form({
                 type="number"
                 name="height"
                 value={formData.height}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, height: e.target.value })
+                }
                 placeholder="Enter Height"
                 required
               />
@@ -98,7 +94,9 @@ function Form({
                 type="number"
                 name="width"
                 value={formData.width}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, width: e.target.value })
+                }
                 placeholder="Enter Width"
                 required
               />
@@ -140,7 +138,7 @@ function Form({
               options={planograms.map((planogram) => planogram.name)}
               selectedOption={
                 planograms.find(
-                  (planogram) => planogram.planogramId === selectedPlanogram
+                  (planogram) => planogram.planogramId === formData.planogramId
                 )?.name || "Select a Planogram"
               }
               onOptionSelect={handleDropdownSelect}
@@ -153,10 +151,10 @@ function Form({
               <CustomDropdown
                 options={Array.from(
                   {
-                    length: selectedPlanogram
+                    length: formData.planogramId
                       ? planograms.find(
                           (planogram) =>
-                            planogram.planogramId === selectedPlanogram
+                            planogram.planogramId === formData.planogramId
                         ).numShelves
                       : 0,
                   },
@@ -166,9 +164,9 @@ function Form({
                   formData.shelf ? formData.shelf.toString() : "Select a Shelf"
                 }
                 onOptionSelect={(option) =>
-                  handleChange({ target: { name: "shelf", value: option } })
+                  setFormData({ ...formData, shelf: option })
                 }
-                disabled={!selectedPlanogram}
+                disabled={!formData.planogramId}
                 width="136px"
               />
             </div>
@@ -177,10 +175,10 @@ function Form({
               <CustomDropdown
                 options={Array.from(
                   {
-                    length: selectedPlanogram
+                    length: formData.planogramId
                       ? planograms.find(
                           (planogram) =>
-                            planogram.planogramId === selectedPlanogram
+                            planogram.planogramId === formData.planogramId
                         ).numSections
                       : 0,
                   },
@@ -192,9 +190,9 @@ function Form({
                     : "Select a Section"
                 }
                 onOptionSelect={(option) =>
-                  handleChange({ target: { name: "section", value: option } })
+                  setFormData({ ...formData, section: option })
                 }
-                disabled={!selectedPlanogram}
+                disabled={!formData.planogramId}
                 width="136px"
               />
             </div>
