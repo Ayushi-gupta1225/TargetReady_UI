@@ -65,7 +65,7 @@ function Home() {
       setScalingFactorHeight(slotHeightPx / realLifeHeightCm);
       setScalingFactorWidth(slotWidthPx / realLifeWidthCm);
     }
-  }, [planograms]);
+  }, [planograms]); // effect runs everytime there is a change in planogram
 
   const handleChange = (e) => {
     const { name, value } = e.target;

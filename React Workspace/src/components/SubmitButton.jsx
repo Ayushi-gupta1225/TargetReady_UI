@@ -1,4 +1,5 @@
 import styles from './SubmitButton.module.css';
+import React from 'react';
 
 const SubmitButton = ({ text, icon, animate, onClick, height, width, variant, buttonColor, arrowColor }) => {
   const iconClass = (icon === './src/assets/arrow-right.svg' || icon === './src/assets/arrow-left.svg') ? 'animate-arrow' : 'animate-plus';

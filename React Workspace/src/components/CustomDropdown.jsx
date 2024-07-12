@@ -1,7 +1,8 @@
+// CustomDropdown.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './CustomDropdown.module.css';
 
-const CustomDropdown = ({ options, selectedOption, onOptionSelect, disabled, width }) => {
+const CustomDropdown = ({ options, selectedOption, onOptionSelect, disabled, width, ariaLabelledBy }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -31,6 +32,7 @@ const CustomDropdown = ({ options, selectedOption, onOptionSelect, disabled, wid
         className={`${styles['dropdown-header']} ${!isPlaceholder ? styles['filled'] : ''}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
+        aria-labelledby={ariaLabelledBy} // Ensure aria-labelledby is correctly used
       >
         <div className={styles['field-placeholder']}>
           {selectedOption || 'Select a Planogram'}

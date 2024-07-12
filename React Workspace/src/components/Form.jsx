@@ -49,20 +49,26 @@ function Form({ formData, setFormData, handleSubmit, handleIncrement, handleDecr
       <div className={styles['form-card']}>
         <form onSubmit={handleSubmit} className={styles['form-fields']} autoComplete="off">
           <div className={styles['form-field-id']}>
-            <label>Product Name</label>
+            <label htmlFor="productName">Product Name</label>
             <input
+              id="productName"
               type="text"
               name="productName"
               value={formData.productName}
-              onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+              onChange={(e) => {
+                // Debugging
+                console.log('Product Name Input change event:', e.target.value);
+                setFormData({ ...formData, productName: e.target.value });
+              }}
               placeholder='Enter Product Name'
               required
             />
           </div>
           <div className={styles['form-field-dim-container']}>
             <div className={styles['form-field-dim']}>
-              <label>Height</label>
+              <label htmlFor="height">Height</label>
               <input
+                id="height"
                 type="number"
                 name="height"
                 value={formData.height}
@@ -72,8 +78,9 @@ function Form({ formData, setFormData, handleSubmit, handleIncrement, handleDecr
               />
             </div>
             <div className={styles['form-field-dim']}>
-              <label>Width</label>
+              <label htmlFor="width">Width</label>
               <input
+                id="width"
                 type="number"
                 name="width"
                 value={formData.width}
@@ -84,7 +91,7 @@ function Form({ formData, setFormData, handleSubmit, handleIncrement, handleDecr
             </div>
           </div>
           <div className={styles['form-field-row']}>
-            <label>Quantity</label>
+            <label htmlFor="quantity">Quantity</label>
             <div className={styles['quantity-selector']}>
               <button type="button" onClick={handleDecrement} className={styles['quantity-minus']}>
                 <img src='./src/assets/minus.svg' alt='Icon' className={styles['icon']} />
@@ -96,33 +103,36 @@ function Form({ formData, setFormData, handleSubmit, handleIncrement, handleDecr
             </div>
           </div>
           <div className={styles['form-field-location']}>
-            <label>Planogram</label>
+            <label id="planogram-label" >Planogram</label>
             <CustomDropdown
               options={planograms.map(planogram => planogram.name)}
               selectedOption={planograms.find(planogram => planogram.planogramId === formData.planogramId)?.name || 'Select a Planogram'}
               onOptionSelect={handleDropdownSelect}
               width="100%"
+              ariaLabelledBy="planogram-label"
             />
           </div>
           <div className={styles['form-field-location-container']}>
             <div className={styles['form-field-location']}>
-              <label>Shelf</label>
+              <label id="shelf-label">Shelf</label>
               <CustomDropdown
                 options={Array.from({ length: formData.planogramId ? planograms.find(planogram => planogram.planogramId === formData.planogramId).numShelves : 0 }, (_, i) => (i + 1).toString())}
                 selectedOption={formData.shelf ? formData.shelf.toString() : 'Select a Shelf'}
                 onOptionSelect={(option) => setFormData({ ...formData, shelf: option })}
                 disabled={!formData.planogramId}
                 width="136px"
+                ariaLabelledBy="shelf-label"
               />
             </div>
             <div className={styles['form-field-location']}>
-              <label>Section</label>
+              <label id="section-label">Section</label>
               <CustomDropdown
                 options={Array.from({ length: formData.planogramId ? planograms.find(planogram => planogram.planogramId === formData.planogramId).numSections : 0 }, (_, i) => (i + 1).toString())}
                 selectedOption={formData.section ? formData.section.toString() : 'Select a Section'}
                 onOptionSelect={(option) => setFormData({ ...formData, section: option })}
                 disabled={!formData.planogramId}
                 width="136px"
+                ariaLabelledBy="section-label"
               />
             </div>
           </div>
